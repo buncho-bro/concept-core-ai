@@ -1,664 +1,1857 @@
 # Experiment 001 Decisions
 
-## DEC-001 Reconstruction Loss
-Status: SUPERSEDED
+この文書は、Experiment 001についてHumanが承認した研究条件を記録する。
+
+`spec.md` は実装時の正規仕様とし、本書はその決定根拠および変更履歴を保持するために使用する。
+
+---
+
+## DEC-001 — Reconstruction Loss
+
+Status: SUPERSEDED  
 Superseded by: DEC-B05
 
-Question:
+旧提案ではAutoencoderの再構成損失としてMSEを使用することのみを決定していた。
 
-Autoencoderの再構成損失として何を使用するか。
+この内容は現在、DEC-B05の学習条件に統合されている。
 
-Candidates:
+---
 
-- MSE
-- BCE
-- L1
+# DEC-NB01 — Formal Baseline Run Set and Experiment-Level Evaluation
 
-Proposal:
-
-MSE
-
-Reason:
-
-RGB画像を0〜1の連続値として扱う単純なbaselineとして
-実装が容易である。
-
-Decision:
-
-## DEC-B01 — Success Criteria
 Status: APPROVED
+
+Experiment 001の正式baselineは、5つのmaster seedによる5 runで構成する。
+
+## Formal master seeds
+
+```text
+1001
+1002
+1003
+1004
+1005
+```
+
+この5 seedは実行前に固定し、結果確認後に変更してはならない。
+
+---
+
+## Seed derivation
+
+各runではmaster seedから用途別seedを決定的に導出する。
+
+対象:
+
+```text
+generation
+split
+model
+loader
+probe
+analysis
+```
+
+導出方法:
+
+```text
+SHA-256(
+  "exp001|" + master_seed + "|" + purpose
+)
+```
+
+SHA-256 digestの先頭32 bitをunsigned integerとして使用する。
+
+したがって各runには、
+
+```text
+master_seed
+generation_seed
+split_seed
+model_seed
+loader_seed
+probe_seed
+analysis_seed
+```
+
+が存在する。
+
+処理順序によってseed値が変化してはならない。
+
+---
+
+## 5 runで変動させるもの
+
+5つの正式runでは、master seedから派生するすべての乱数系列を変化させる。
+
+したがってrun間では、
+
+- 画像生成
+- dataset split
+- model initialization
+- DataLoader順序
+- probe関連乱数
+- analysis/bootstrap乱数
+
+がそれぞれ変化する。
+
+Experiment 001における再現性とは、
+
+> 実験手続き全体を異なる乱数条件で繰り返しても同様の構造形成傾向が観測されるか
+
+を意味する。
+
+---
+
+## Run-levelとExperiment-levelを分離する
+
+個々のrunではExperiment全体の、
+
+```text
+SUCCESS
+INCONCLUSIVE
+NO_EVIDENCE
+```
+
+を判定しない。
+
+run-level成果物では最低限、
+
+```text
+OBSERVATIONS
+METRICS
+WARNINGS
+ARTIFACTS
+```
+
+を記録する。
+
+最終科学的判定は、正式5 runを集約したExperiment-level成果物でのみ行う。
+
+---
+
+## Experiment-level成果物
+
+正式5 runの集合と集約結果を保存する。
+
+論理的には以下を区別できる構造とする。
+
+```text
+runs/
+  <individual runs>
+
+aggregate/
+  baseline_manifest
+  aggregate_metrics
+  report
+```
+
+正確なファイル名や配置は実装側で決定してよい。
+
+`baseline_manifest` には最低限、
+
+```text
+experiment_id
+git_commit
+
+formal_master_seeds:
+  - 1001
+  - 1002
+  - 1003
+  - 1004
+  - 1005
+
+各runについて:
+  master_seed
+  run_id
+  derived seeds
+  status
+```
+
+を保存する。
+
+---
+
+## Technical invalid run
+
+以下のような実験条件そのものではない失敗を、
+
+```text
+INVALID
+```
+
+として扱う。
+
+例:
+
+- 実装bug
+- ファイル破損
+- 実行中断
+- hardware/environment障害
+- spec違反
+- label leakage
+- VERIFY失敗
+
+INVALID runは削除しない。
+
+bug修正などによってgit commitが変化した場合、正式baselineは新しいcommitで5 seedすべてを再実行する。
+
+異なる実装commitのrunを同一正式baseline集合に混在させない。
+
+---
+
+## Experimental failure
+
+仕様どおり正常に実行されたが、
+
+- loss発散
+- NaN
+- 再構成学習の失敗
+- 評価不能となる学習上の失敗
+
+などが発生した場合、
+
+```text
+EXPERIMENTAL_FAILURE
+```
+
+として科学的結果に含める。
+
+runを削除したり、同一runの条件を変更して再利用してはならない。
+
+---
+
+## 5 run未満の場合
+
+正式な有効runが5件揃っていない場合、科学的三値判定を行わない。
+
+管理上の状態を、
+
+```text
+NOT_EVALUATED
+```
+
+とする。
+
+`NOT_EVALUATED` は科学的結論ではない。
+
+---
+
+# DEC-B01 — Success Criteria
+
+Status: APPROVED  
 Source: review/BLOCKERS.md#B-01
 
-Experiment 001の成功条件を以下とする。
+Experiment 001は概念核の存在を証明しない。
 
-scope:
-  Experiment 001は概念核の存在を証明しない。
-  学習によって概念核候補となり得る
-  再現可能な潜在構造が形成されたかを判定する。
+目的は、
 
-seeds:
-  count: 5
+> 再構成学習によって、学習前には弱かったcolorまたはshapeに対応する再現可能な規則的潜在構造が形成されたか
 
-attributes:
-  - color
-  - shape
+を判定することである。
 
-primary_metric:
-  linear_probe_test_accuracy
+---
 
-各attribute Aについて:
+## Attributes
 
-  probe_delta_A:
-    final_encoder_test_accuracy
-    -
-    initial_encoder_test_accuracy
+```text
+color
+shape
+```
 
-probe_success_conditions:
-  - 5 seed中4 seed以上で probe_delta_A > 0
-  - probe_delta_A の5 seed中央値 >= 0.10
-  - final test accuracy の5 seed中央値 >= 0.70
+について独立に評価する。
 
-confirmatory_metric:
-  standardized_euclidean_distance
+---
 
-distance_contrast_A:
+## Primary metric
 
-  colorの場合:
-    mean(different_color)
-    -
-    mean(same_color)
+主判定にはlinear probeのTest accuracyを使用する。
 
-  shapeの場合:
-    mean(different_shape)
-    -
-    mean(same_shape)
+各attribute `A`について、
 
-distance_success_conditions:
-  - final Encoderについて、
-    5 seed中4 seed以上で distance_contrast_A > 0
-  - distance_contrast_A の5 seed中央値について、
-    final > initial
+```text
+probe_delta_A(seed)
+=
+final_encoder_test_accuracy_A(seed)
+-
+initial_encoder_test_accuracy_A(seed)
+```
 
-experiment_success:
-  colorまたはshapeの少なくとも一方が、
-  probe_success_conditionsと
-  distance_success_conditionsの両方を満たす。
+を定義する。
 
-result_categories:
+---
 
-  SUCCESS:
-    少なくとも1属性が全成功条件を満たす。
+## Probe success conditions
 
-  INCONCLUSIVE:
-    規則性または改善は観測されたが、
-    全成功条件を満たさない。
+attribute Aについて以下をすべて満たすこと。
 
-  NO_EVIDENCE:
-    color/shapeとも成功条件を満たさず、
-    学習による一貫した構造強化を確認できない。
+1.
 
-PCA:
-  成功判定には使用しない。
-  exploratory visualizationとしてのみ使用する。
+```text
+5 seed中4 seed以上で
+probe_delta_A > 0
+```
 
-pixel_baseline:
-  成功判定の必須閾値には使用しない。
-  結果の解釈および交絡確認に使用する。
+2.
 
-interpretation_constraints:
-  - SUCCESSでも「概念核を発見した」とは結論しない。
-  - attributeごとの結果を分離して報告する。
-  - 基準未達の結果を成功として再解釈しない。
-  - 結果を確認した後に閾値を変更しない。
+```text
+median(probe_delta_A) >= 0.10
+```
 
-## DEC-B02 — Dataset Generation
-Status: APPROVED
+3.
+
+```text
+median(final_encoder_test_accuracy_A) >= 0.70
+```
+
+---
+
+## Confirmatory metric
+
+主確認指標にはstandardized Euclidean distanceを使用する。
+
+colorについて、
+
+```text
+distance_contrast_color
+=
+mean(different_color)
+-
+mean(same_color)
+```
+
+shapeについて、
+
+```text
+distance_contrast_shape
+=
+mean(different_shape)
+-
+mean(same_shape)
+```
+
+を定義する。
+
+各seedについて、
+
+```text
+distance_delta_A(seed)
+=
+distance_contrast_final_A(seed)
+-
+distance_contrast_initial_A(seed)
+```
+
+を定義する。
+
+---
+
+## Distance success conditions
+
+attribute Aについて以下をすべて満たすこと。
+
+1.
+
+```text
+final Encoderで
+5 seed中4 seed以上
+distance_contrast_A > 0
+```
+
+2.
+
+```text
+median(distance_delta_A) > 0
+```
+
+---
+
+## SUCCESS
+
+colorまたはshapeの少なくとも一方が、
+
+- Probe success conditions
+- Distance success conditions
+
+の両方を満たす場合、
+
+```text
+SUCCESS
+```
+
+とする。
+
+---
+
+## INCONCLUSIVE
+
+SUCCESSではないが、colorまたはshapeの少なくとも一方について、
+
+```text
+median(probe_delta_A) > 0
+```
+
+または、
+
+```text
+median(distance_delta_A) > 0
+```
+
+が成立する場合、
+
+```text
+INCONCLUSIVE
+```
+
+とする。
+
+また、正式5 runの中に `EXPERIMENTAL_FAILURE` が存在し、成功判定に必要な指標を完全に計算できない場合もINCONCLUSIVEとする。
+
+---
+
+## NO_EVIDENCE
+
+正式5 runすべてで必要な評価が正常に完了し、SUCCESSではなく、colorとshapeの両方について、
+
+```text
+median(probe_delta_A) <= 0
+AND
+median(distance_delta_A) <= 0
+```
+
+の場合、
+
+```text
+NO_EVIDENCE
+```
+
+とする。
+
+NO_EVIDENCEは、
+
+> この実験条件および事前登録した評価方法では、学習による一貫した構造強化を確認できなかった
+
+ことを意味する。
+
+概念核そのものが存在しないことを意味しない。
+
+---
+
+## PCA
+
+PCAは探索的可視化にのみ使用する。
+
+成功判定には使用しない。
+
+---
+
+## Pixel baseline
+
+Pixel baselineは結果解釈用controlとして使用する。
+
+latentがPixel baselineを上回ること自体を成功条件にはしない。
+
+---
+
+## Interpretation constraints
+
+- SUCCESSでも「概念核を発見した」と結論しない。
+- colorとshapeの結果を分離して報告する。
+- 基準未達結果を実行後に成功として再解釈しない。
+- 結果確認後に成功閾値を変更しない。
+
+---
+
+# DEC-B02 — Dataset Generation
+
+Status: APPROVED  
 Source: review/BLOCKERS.md#B-02
 
 Experiment 001の人工画像生成条件を以下とする。
 
-image:
-  width: 64
-  height: 64
-  channels: RGB
-  background: [0, 0, 0]
+---
 
-colors:
-  red:   [230, 25, 25]
-  green: [25, 230, 25]
-  blue:  [25, 25, 230]
+## Image
 
-color_variation:
-  distribution: discrete_uniform
-  range: [-10, +10]
-  per_channel: independent
+```text
+width: 64
+height: 64
+channels: RGB
+background: [0, 0, 0]
+```
 
-position:
-  center_x: U_integer(26, 38)
-  center_y: U_integer(26, 38)
+---
 
-size:
-  definition: circumradius_px
-  distribution: U_integer(12, 16)
+## Colors
 
-rotation:
-  circle: 0
-  triangle: U(0, 360)
-  square: U(0, 360)
-  unit: degree
+```text
+red:   [230, 25, 25]
+green: [25, 230, 25]
+blue:  [25, 25, 230]
+```
 
-rendering:
-  fill: solid
-  outline: none
-  supersampling: 4
-  final_resolution: 64x64
+---
 
-constraints:
-  - 図形全体が画像内に存在すること
-  - clippingを許可しない
-  - 背景は変動させない
-  - 実行時augmentationを使用しない
+## Color variation
 
-## DEC-B03 — Dataset Split
-Status: APPROVED
+各sampleについて、各RGB channelへ独立に、
+
+```text
+U_integer(-10, +10)
+```
+
+を加える。
+
+foreground RGBは図形描画前にsample単位で一度だけ決定する。
+
+最終RGB値は `[0,255]` に制限する。
+
+---
+
+## Position
+
+```text
+center_x = U_integer(26, 38)
+center_y = U_integer(26, 38)
+```
+
+---
+
+## Size
+
+```text
+definition: circumradius_px
+size = U_integer(12, 16)
+```
+
+円ではradiusそのものを表す。
+
+正三角形・正方形では外接円半径を表す。
+
+---
+
+## Rotation
+
+```text
+circle:
+  rotation = 0.0
+
+triangle:
+  rotation ~ Uniform[0°, 360°)
+
+square:
+  rotation ~ Uniform[0°, 360°)
+```
+
+360°自体は生成しない。
+
+rotationは実数として保持し、実際に使用した値をmetadataへ保存する。
+
+---
+
+## Coordinate system
+
+最終64×64画像では、
+
+```text
+x = 0 ... 63
+y = 0 ... 63
+```
+
+をpixel center座標とする。
+
+pixel `(x,y)` の領域は、
+
+```text
+[x - 0.5, x + 0.5)
+×
+[y - 0.5, y + 0.5)
+```
+
+とする。
+
+y軸は画像下方向を正とする。
+
+---
+
+## Supersampling
+
+4×4 subpixel supersamplingを使用する。
+
+各final pixelについてsubpixel centerを、
+
+```text
+x + {-3/8, -1/8, +1/8, +3/8}
+y + {-3/8, -1/8, +1/8, +3/8}
+```
+
+の全16組み合わせとする。
+
+各subpixelについて図形内部判定を行う。
+
+final pixel RGBは16 subpixelのRGB値の算術平均とする。
+
+一般的な画像resize filterには依存しない。
+
+---
+
+## Circle geometry
+
+中心 `(cx,cy)`、radius=`size` とする。
+
+subpixel `(px,py)` が、
+
+```text
+(px-cx)^2 + (py-cy)^2 <= size^2
+```
+
+なら内部とする。
+
+境界上もinsideとする。
+
+---
+
+## Triangle geometry
+
+常に正三角形とする。
+
+外接円半径は `size`。
+
+頂点角度は、
+
+```text
+rotation
+rotation + 120°
+rotation + 240°
+```
+
+とする。
+
+頂点座標は、
+
+```text
+x = cx + size * cos(theta)
+y = cy - size * sin(theta)
+```
+
+とする。
+
+rotation=0°では最初の頂点が右方向を向く。
+
+---
+
+## Square geometry
+
+常に正方形とする。
+
+外接円半径は `size`。
+
+頂点角度は、
+
+```text
+rotation
+rotation + 90°
+rotation + 180°
+rotation + 270°
+```
+
+とする。
+
+頂点座標は三角形と同じ座標規約を使用する。
+
+rotation=0°では最初の頂点が右方向を向く。
+
+---
+
+## Polygon rasterization
+
+三角形・四角形について、subpixel centerがpolygon内部または境界上ならforegroundとする。
+
+内部判定アルゴリズム自体は、同じ幾何結果を生成する限り実装側で選択可能とする。
+
+---
+
+## Foreground rendering
+
+各sampleについて先にforeground RGBを決定する。
+
+```text
+inside subpixel:
+  sample foreground RGB
+
+outside subpixel:
+  [0, 0, 0]
+```
+
+その後16 subpixelを平均してfinal pixel RGBを得る。
+
+---
+
+## Clipping
+
+画像の連続幾何領域を、
+
+```text
+[-0.5, 63.5)
+×
+[-0.5, 63.5)
+```
+
+とする。
+
+図形全体がこの領域内に存在しなければならない。
+
+clippingは許可しない。
+
+---
+
+## Other constraints
+
+- 背景を変動させない。
+- runtime augmentationを使用しない。
+- run開始後に画像生成条件を変更しない。
+
+---
+
+# DEC-B03 — Dataset Split
+
+Status: APPROVED  
 Source: review/BLOCKERS.md#B-03
 
-Experiment 001のデータ分割を以下とする。
+各color × shape組み合わせ1,000件を独立に分割する。
 
-基本単位:
-- 9種類の color × shape 組み合わせごとに独立して分割する。
-- 各組み合わせは1000サンプル。
+---
 
-split:
-- Train: 800 / combination
-- Validation: 100 / combination
-- Test: 100 / combination
+## Split
 
-total:
-- Train: 7200
-- Validation: 900
-- Test: 900
+```text
+Train:      800 / combination
+Validation: 100 / combination
+Test:       100 / combination
+```
 
-procedure:
-1. B-02に従って全9000サンプルを生成する。
-2. 各サンプルへ一意なsample_idを付与する。
-3. 各color × shapeグループ内でsample_idを
-   split_seedを使用して決定的にshuffleする。
-4. 先頭800をTrain、次の100をValidation、
-   最後の100をTestとする。
-5. splitをdataset_metadata.csvへ固定して保存する。
+全体:
 
-randomness:
-- split_seedはgeneration_seedとは独立させる。
-- 同一設定・同一seedから同一splitを再現できること。
+```text
+Train:      7200
+Validation:  900
+Test:        900
+```
 
-constraints:
-- Train / Validation / Testは相互排他的。
-- 3 splitの和集合は全9000サンプルと一致する。
-- 各splitに9種類すべての組み合わせを含める。
-- Experiment 001では組み合わせholdoutを行わない。
+---
 
-usage:
-- Train:
-  Autoencoderの学習に使用する。
+## Procedure
 
-- Validation:
-  学習状態の確認および、
-  事前承認された設定選択にのみ使用可能。
+1. DEC-B02に従って全9,000サンプルを生成する。
+2. 各sampleに一意な `sample_id` を付与する。
+3. 各color × shapeグループ内で `split_seed` により決定的にshuffleする。
+4. 先頭800件をTrainとする。
+5. 次の100件をValidationとする。
+6. 最後の100件をTestとする。
+7. splitをmetadataへ固定保存する。
 
-- Test:
-  最終評価専用。
-  Autoencoderの学習・設定選択には使用しない。
+---
 
-## DEC-B04 — Autoencoder Architecture
-Status: APPROVED
+## Constraints
 
-Experiment 001のbaselineモデルとして
-Convolutional Autoencoderを使用する。
+```text
+Train ∩ Validation = ∅
+Train ∩ Test = ∅
+Validation ∩ Test = ∅
+```
 
-input:
-  shape: [3, 64, 64]
-  dtype: float32
-  range: [0.0, 1.0]
-  normalization: RGB / 255
+かつ、
 
-encoder:
+```text
+Train ∪ Validation ∪ Test
+=
+全9000 samples
+```
 
-  Conv2d:
-    in: 3
-    out: 32
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+でなければならない。
 
-  Conv2d:
-    in: 32
-    out: 64
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+各splitには9種類すべてのcolor × shape組み合わせを含める。
 
-  Conv2d:
-    in: 64
-    out: 128
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+Experiment 001では組み合わせhold-outを行わない。
 
-  Conv2d:
-    in: 128
-    out: 256
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+---
 
-  Flatten
+## Usage
 
-  Linear:
-    in: 4096
-    out: latent_dim
+Train:
 
-latent:
-  latent_dim: 32
-  activation: none
-  shape: [32]
+```text
+Autoencoder training
+probe training
+baseline classifier training
+```
 
-decoder:
+Validation:
 
-  Linear:
-    in: latent_dim
-    out: 4096
-  ReLU
+```text
+Autoencoder validation loss measurement
+probe C selection
+baseline classifier C selection
+```
 
-  Reshape:
-    [256, 4, 4]
+Test:
 
-  ConvTranspose2d:
-    in: 256
-    out: 128
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+```text
+final evaluation only
+```
 
-  ConvTranspose2d:
-    in: 128
-    out: 64
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+Autoencoderのparameter updateまたはcheckpoint選択にValidation/Testを使用しない。
 
-  ConvTranspose2d:
-    in: 64
-    out: 32
-    kernel: 4
-    stride: 2
-    padding: 1
-  ReLU
+---
 
-  ConvTranspose2d:
-    in: 32
-    out: 3
-    kernel: 4
-    stride: 2
-    padding: 1
-  Sigmoid
+# DEC-B04 — Autoencoder Architecture
 
-normalization_layers:
-  none
+Status: APPROVED  
+Source: review/BLOCKERS.md#B-04
 
-dropout:
-  none
+Experiment 001のbaselineとしてConvolutional Autoencoderを使用する。
 
-constraints:
-  - latent_dimはconfigから変更可能にする。
-  - Experiment 001 baselineではlatent_dim=32を使用する。
-  - latentには正規化・活性化を加えない。
-  - 色・形その他の評価metadataをモデルへ入力しない。
-  - architectureを結果確認後に変更して同一baselineとして扱わない。
-  - モデルの総parameter数を記録する。
+---
 
-## DEC-B05 — Training Procedure
-Status: APPROVED
+## Input
+
+```text
+shape: [3, 64, 64]
+dtype: float32
+range: [0.0, 1.0]
+normalization: RGB / 255
+```
+
+---
+
+## Encoder
+
+```text
+Conv2d:
+  in: 3
+  out: 32
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+Conv2d:
+  in: 32
+  out: 64
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+Conv2d:
+  in: 64
+  out: 128
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+Conv2d:
+  in: 128
+  out: 256
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+Flatten
+
+Linear:
+  in: 4096
+  out: latent_dim
+  bias: true
+```
+
+Encoder最終出力にはactivationを適用しない。
+
+---
+
+## Latent
+
+```text
+latent_dim: 32
+activation: none
+shape: [32]
+```
+
+baseline runでは32を使用する。
+
+実装上はconfigから変更可能としてよい。
+
+---
+
+## Decoder
+
+```text
+Linear:
+  in: latent_dim
+  out: 4096
+  bias: true
+ReLU
+
+Reshape:
+  [256, 4, 4]
+
+ConvTranspose2d:
+  in: 256
+  out: 128
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+ConvTranspose2d:
+  in: 128
+  out: 64
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+ConvTranspose2d:
+  in: 64
+  out: 32
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+ReLU
+
+ConvTranspose2d:
+  in: 32
+  out: 3
+  kernel: 4
+  stride: 2
+  padding: 1
+  bias: true
+Sigmoid
+```
+
+---
+
+## Weight initialization
+
+ReLU直前の学習層には、
+
+```text
+Kaiming Uniform
+mode: fan_in
+nonlinearity: relu
+```
+
+を使用する。
+
+対象:
+
+```text
+Encoder Conv2d layers
+
+Decoder:
+  Linear latent_dim → 4096
+  ConvTranspose2d 256 → 128
+  ConvTranspose2d 128 → 64
+  ConvTranspose2d 64 → 32
+```
+
+Encoderのlatent出力LinearとDecoder最終ConvTranspose2dには、
+
+```text
+Xavier Uniform
+gain: 1.0
+```
+
+を使用する。
+
+---
+
+## Bias initialization
+
+全biasを、
+
+```text
+0.0
+```
+
+で初期化する。
+
+---
+
+## Initialization randomness
+
+parameter initializationは `model_seed` のみに依存させる。
+
+同一model seedから同一initial parameterを生成可能であること。
+
+`initial.pt` はoptimizer update前に保存する。
+
+---
+
+## Numeric precision
+
+```text
+parameter_dtype: float32
+activation_dtype: float32
+loss_dtype: float32
+```
+
+---
+
+## Mixed precision
+
+```text
+AMP: disabled
+FP16: disabled
+BF16: disabled
+```
+
+---
+
+## TF32
+
+```text
+TF32: disabled
+```
+
+---
+
+## Other constraints
+
+以下は使用しない。
+
+- Batch Normalization
+- Dropout
+- latent normalization
+
+モデルの総parameter数を記録する。
+
+architectureを結果確認後に変更し、同じbaselineとして扱ってはならない。
+
+---
+
+# DEC-B05 — Training Procedure
+
+Status: APPROVED  
+Source: review/BLOCKERS.md#B-05
 
 Experiment 001 baselineの学習条件を以下とする。
 
-objective:
-  type: image_reconstruction_only
-
-loss:
-  function: MSE
-  reduction: mean
-
-optimizer:
-  type: Adam
-  learning_rate: 0.001
-  beta1: 0.9
-  beta2: 0.999
-  eps: 1e-8
-  weight_decay: 0
-
-training:
-  epochs: 50
-  batch_size: 128
-
-train_loader:
-  shuffle: true
-  drop_last: false
-  randomness: loader_seed
-
-validation_loader:
-  shuffle: false
-  drop_last: false
-
-test_loader:
-  shuffle: false
-  drop_last: false
-
-learning_rate_scheduler:
-  none
-
-early_stopping:
-  none
-
-gradient_clipping:
-  none
-
-regularization:
-  weight_decay: none
-  latent_regularization: none
-  sparsity_penalty: none
-  KL_divergence: none
-  contrastive_loss: none
-
-checkpoint:
-  initial:
-    学習開始前のモデル
-
-  final:
-    epoch 50終了時のモデル
-
-primary_analysis_checkpoint:
-  final.pt
-
-validation:
-  - 各epoch終了後にvalidation lossを測定する。
-  - Autoencoderのparameter updateには使用しない。
-  - early stoppingには使用しない。
-  - baselineのcheckpoint選択には使用しない。
-
-logging:
-  per_epoch:
-    - epoch
-    - training_loss
-    - validation_loss
-    - learning_rate
-
-failure_policy:
-  - 学習失敗もrunとして保存する。
-  - 結果を確認した後に同一runの設定を書き換えない。
-  - 学習条件を変更する場合は新しいDecisionと新しいrunを作る。
-
-constraints:
-  - 学習目的は画像再構成のみ。
-  - color/shape metadataを損失計算に使用しない。
-  - latent構造を直接誘導する損失を使用しない。
-
-## DEC-B06 — Linear Probe
-Status: APPROVED
-
-Experiment 001の線形プローブを以下とする。
-
-purpose:
-  学習済み潜在表現からcolorおよびshapeが
-  どの程度線形に読み出せるかを測定する。
-
-encoder:
-  frozen: true
-  gradient_from_probe: prohibited
-
-latent:
-  - Train / Validation / Testすべてについて抽出する。
-  - initial.ptとfinal.ptの両方について抽出する。
-  - probe学習前にEncoder出力をdetachする。
-
-probes:
-  color:
-    type: multinomial_logistic_regression
-    classes: [red, green, blue]
-
-  shape:
-    type: multinomial_logistic_regression
-    classes: [circle, triangle, square]
-
-  hidden_layers: none
-
-training:
-  train_split: Train
-  validation_split: Validation
-  final_evaluation_split: Test
-
-regularization:
-  type: L2
-  C_candidates:
-    - 0.01
-    - 0.1
-    - 1
-    - 10
-    - 100
-
-selection:
-  criterion: highest_validation_accuracy
-  tie_break:
-    select_smallest_C
-
-randomness:
-  seed: probe_seed
-
-evaluation:
-  primary_metric: test_accuracy
-
-  additional_metrics:
-    - train_accuracy
-    - validation_accuracy
-    - balanced_accuracy
-    - confusion_matrix
-
-  chance_level:
-    color: 1/3
-    shape: 1/3
-
-controls:
-  - initial.ptとfinal.ptに同一probe手順を適用する。
-  - split、C候補、選択規則、評価指標を同一にする。
-
-constraints:
-  - Test latentをprobeの学習または設定選択に使用しない。
-  - probeからEncoderへ勾配を返さない。
-  - color/shape probeは独立して学習する。
-  - probe性能だけを根拠に概念核形成を断定しない。
-
-## DEC-B07 — Distance Analysis
-Status: APPROVED
-
-Experiment 001のlatent距離解析を以下とする。
-
-analysis_split:
-  Test
-
-pair_selection:
-  use_all_unique_pairs: true
-  include_self_pairs: false
-  duplicate_ordered_pairs: false
-
-pair_categories:
-  - same_color_same_shape
-  - same_color_different_shape
-  - different_color_same_shape
-  - different_color_different_shape
-
-distance_metrics:
-
-  primary:
-    name: standardized_euclidean
-
-    standardization:
-      statistics_source: Train latent
-      per_dimension: true
-
-      formula:
-        z' = (z - mean_train) / std_train
-
-      near_zero_std_threshold: 1e-8
-      near_zero_std_action:
-        exclude_dimension
-
-  secondary:
-    name: raw_euclidean
-
-statistics_per_category:
-  - count
-  - mean_distance
-  - median_distance
-  - standard_deviation
-  - bootstrap_95_percent_CI_for_mean
-
-bootstrap:
-  iterations: 1000
-  resampling_unit: test_sample
-  seed: analysis_seed
-
-additional_aggregates:
-  color:
-    - same_color
-    - different_color
-
-  shape:
-    - same_shape
-    - different_shape
-
-controls:
-  - initial.ptとfinal.ptの両方に同一手順を適用する。
-  - initial/finalそれぞれのTrain latentから
-    個別にstandardization統計を計算する。
-
-artifacts:
-  - categoryごとの統計
-  - raw Euclidean結果
-  - standardized Euclidean結果
-  - standardizationに使用したmean/std
-  - 除外されたnear-zero variance次元
-  - bootstrap CI
-  - initial/final比較可能な形式
-
-constraints:
-  - Test labelは距離カテゴリ分類にのみ使用する。
-  - Testデータからstandardization統計を推定しない。
-  - 距離尺度を結果確認後に変更して主解析として扱わない。
-  - 距離差だけを根拠に概念核形成を断定しない。
-
-## DEC-B08 — Pixel Baseline
-Status: APPROVED
-
-Experiment 001ではPixel baselineを必須とする。
-
-目的:
-  潜在表現から読み出されたcolor/shape情報が、
-  元画像の単純な統計または生pixel空間でも
-  容易に読み出せる情報ではないかを比較する。
-
-baseline_1:
-  name: simple_image_statistics
-
-  features:
-    - mean_R
-    - mean_G
-    - mean_B
-    - std_R
-    - std_G
-    - std_B
-    - foreground_fraction
-
-  foreground_definition:
-    RGB sum > 0
-
-baseline_2:
-  name: raw_pixel_linear
-
-  input:
-    RGB image normalized to [0,1]
-
-  transform:
-    flatten to 12288 dimensions
-
-feature_standardization:
-  statistics_source: Train
-
-  formula:
-    x' = (x - mean_train) / std_train
-
-  near_zero_std_threshold: 1e-8
-  near_zero_std_action: exclude_feature
-
-classifier:
-  type: multinomial_logistic_regression
-  hidden_layers: none
-
-regularization:
-  type: L2
-
-  C_candidates:
-    - 0.01
-    - 0.1
-    - 1
-    - 10
-    - 100
-
-split_usage:
-  Train:
-    classifier training
-
-  Validation:
-    C selection
-
-  Test:
-    final evaluation only
-
-selection:
-  criterion: highest_validation_accuracy
-  tie_break:
-    select_smallest_C
-
-targets:
-  - color
-  - shape
-
-metrics:
-  - train_accuracy
-  - validation_accuracy
-  - test_accuracy
-  - balanced_accuracy
-  - confusion_matrix
-
-chance_level:
-  color: 1/3
-  shape: 1/3
-
-comparison:
-  - simple statistics baseline
-  - raw pixel linear baseline
-  - initial Encoder latent probe
-  - final Encoder latent probe
-
-constraints:
-  - Testをclassifier trainingまたは設定選択に使用しない。
-  - Pixel baselineはAutoencoderの学習へ影響させない。
-  - Pixel baselineの結果を見てAutoencoderの研究条件を同一run内で変更しない。
-  - latentがPixel baselineを上回ること自体を、
-    この段階では成功条件にしない。
-  - Pixel baselineだけを根拠に概念核の有無を判断しない。
+---
+
+## Objective
+
+```text
+image_reconstruction_only
+```
+
+---
+
+## Loss
+
+```text
+Mean Squared Error
+reduction: mean
+```
+
+---
+
+## Optimizer
+
+```text
+Adam
+
+learning_rate: 0.001
+beta1: 0.9
+beta2: 0.999
+eps: 1e-8
+weight_decay: 0
+```
+
+---
+
+## Training
+
+```text
+epochs: 50
+batch_size: 128
+```
+
+Train:
+
+```text
+shuffle: true
+drop_last: false
+seed: loader_seed
+```
+
+Validation:
+
+```text
+shuffle: false
+drop_last: false
+```
+
+Test:
+
+```text
+shuffle: false
+drop_last: false
+```
+
+---
+
+## Disabled mechanisms
+
+```text
+learning_rate_scheduler: none
+early_stopping: none
+gradient_clipping: none
+```
+
+以下の正則化を使用しない。
+
+- latent regularization
+- sparsity penalty
+- KL divergence
+- contrastive loss
+
+---
+
+## Checkpoints
+
+```text
+initial.pt
+final.pt
+```
+
+`initial.pt` は学習開始前。
+
+`final.pt` は50 epoch終了後。
+
+主解析対象は `final.pt`。
+
+Validation lossによるbest checkpoint選択は行わない。
+
+---
+
+## Validation
+
+各epoch終了後にValidation lossを測定する。
+
+Validationは、
+
+- Autoencoder parameter update
+- early stopping
+- checkpoint selection
+
+には使用しない。
+
+---
+
+## Logging
+
+最低限、
+
+```text
+epoch
+training_loss
+validation_loss
+learning_rate
+```
+
+を記録する。
+
+---
+
+## Failure policy
+
+学習失敗もrunとして保存する。
+
+結果確認後に同一runの条件を書き換えない。
+
+研究条件を変更する場合は、新しいDecisionと新しいrunとして扱う。
+
+---
+
+# DEC-B06 — Linear Probe
+
+Status: APPROVED  
+Source: review/BLOCKERS.md#B-06
+
+学習済み潜在表現からcolorおよびshapeがどの程度線形に読み出せるかを測定する。
+
+---
+
+## Encoder
+
+```text
+frozen: true
+gradient_from_probe: prohibited
+```
+
+Train / Validation / Testすべてについて、initial/final Encoderのlatentを抽出する。
+
+probe学習によるgradientをEncoderへ返してはならない。
+
+---
+
+## Latent standardization
+
+probe入力前にlatentをTrain統計で標準化する。
+
+```text
+x' = (x - mean_train) / std_train
+```
+
+```text
+ddof: 0
+near_zero_std_threshold: 1e-8
+near_zero_std_action: exclude_feature
+```
+
+initial Encoderについては、
+
+```text
+initial Train latent
+```
+
+のみからscalerをfitする。
+
+final Encoderについては、
+
+```text
+final Train latent
+```
+
+のみからscalerをfitする。
+
+initial/finalでscalerを共有しない。
+
+Validation/Test統計をscaler fitに使用しない。
+
+---
+
+## Probes
+
+color:
+
+```text
+multinomial logistic regression
+classes:
+  red
+  green
+  blue
+```
+
+shape:
+
+```text
+multinomial logistic regression
+classes:
+  circle
+  triangle
+  square
+```
+
+hidden layerは使用しない。
+
+---
+
+## Classifier configuration
+
+```text
+penalty: L2
+
+C_candidates:
+  - 0.01
+  - 0.1
+  - 1
+  - 10
+  - 100
+
+fit_intercept: true
+class_weight: none
+
+solver: lbfgs
+max_iter: 1000
+tolerance: 1e-6
+```
+
+---
+
+## Split usage
+
+```text
+Train:
+  classifier training
+
+Validation:
+  C selection
+
+Test:
+  final evaluation only
+```
+
+---
+
+## C selection
+
+収束したcandidateのみを対象とする。
+
+Validation accuracy最大のCを採用する。
+
+同率の場合は最小Cを採用する。
+
+---
+
+## Non-convergence
+
+非収束candidateはC選択対象から除外する。
+
+すべてのC候補が非収束の場合、
+
+```text
+probe_status:
+  FAILED
+
+reason:
+  NO_CONVERGED_CANDIDATE
+```
+
+とする。
+
+そのrunを削除したり、同一run内で条件を変更して再実行してはならない。
+
+---
+
+## Required metrics
+
+```text
+train_accuracy
+train_balanced_accuracy
+
+validation_accuracy
+validation_balanced_accuracy
+
+test_accuracy
+test_balanced_accuracy
+
+test_confusion_matrix
+
+chance_level
+selected_C
+```
+
+成功条件には通常の `test_accuracy` を使用する。
+
+---
+
+## Class order
+
+color:
+
+```text
+red
+green
+blue
+```
+
+shape:
+
+```text
+circle
+triangle
+square
+```
+
+---
+
+## Control consistency
+
+initial/final Encoderで、
+
+- preprocessing
+- classifier
+- C grid
+- selection rule
+- metrics
+
+をすべて同一にする。
+
+---
+
+# DEC-B07 — Distance Analysis
+
+Status: APPROVED  
+Source: review/BLOCKERS.md#B-07
+
+Test latent上で距離解析を行う。
+
+---
+
+## Pair selection
+
+900 Test samplesについて全ユニークunordered pairを使用する。
+
+```text
+C(900,2) = 404550
+```
+
+自己pairを含めない。
+
+順序違いの重複pairを含めない。
+
+---
+
+## Pair categories
+
+```text
+same_color_same_shape
+same_color_different_shape
+different_color_same_shape
+different_color_different_shape
+```
+
+---
+
+## Primary distance
+
+Train latent統計によって標準化したEuclidean distanceを主解析とする。
+
+```text
+z' = (z - mean_train) / std_train
+```
+
+```text
+ddof: 0
+near_zero_std_threshold: 1e-8
+near_zero_std_action: exclude_dimension
+```
+
+initial/finalそれぞれ自身のTrain latent統計を使用する。
+
+---
+
+## Secondary distance
+
+```text
+raw Euclidean
+```
+
+を補助解析として保存する。
+
+---
+
+## Aggregates
+
+color:
+
+```text
+same_color
+=
+same_color_same_shape
++
+same_color_different_shape
+```
+
+```text
+different_color
+=
+different_color_same_shape
++
+different_color_different_shape
+```
+
+shape:
+
+```text
+same_shape
+=
+same_color_same_shape
++
+different_color_same_shape
+```
+
+```text
+different_shape
+=
+same_color_different_shape
++
+different_color_different_shape
+```
+
+`+` はpair集合の結合を意味する。
+
+結合後の全pairから統計を再計算する。
+
+---
+
+## Statistics
+
+各4カテゴリおよびaggregateについて最低限、
+
+```text
+count
+mean_distance
+median_distance
+standard_deviation
+bootstrap_95_percent_CI_for_mean
+```
+
+を保存する。
+
+距離分布standard deviationも、
+
+```text
+ddof = 0
+```
+
+とする。
+
+---
+
+## Bootstrap
+
+```text
+iterations: 1000
+resampling_unit: test_sample
+sample_size_per_iteration: 900
+replacement: true
+seed: analysis_seed
+```
+
+---
+
+## Bootstrap instance handling
+
+復元抽出された各出現を別個のbootstrap instanceとして扱う。
+
+各instanceには一意なbootstrap instance identityを持たせる。
+
+同一original `sample_id` に由来するinstance同士のpairは除外する。
+
+異なるoriginal sample間のpairについてはbootstrap multiplicityを反映して含める。
+
+---
+
+## Bootstrap pairing
+
+各iterationでunique unordered instance pairsを構築する。
+
+以下を除外する。
+
+- 同一instanceのself-pair
+- 同一original sample_id由来のinstance同士のpair
+
+pairそのものを直接bootstrapしてはならない。
+
+---
+
+## Bootstrap distance source
+
+保存済みTest latentを使用する。
+
+standardized distanceでは承認済みTrain mean/stdを固定使用する。
+
+bootstrap iterationごとにscalerをfitし直してはならない。
+
+Encoderやprobeを再学習しない。
+
+---
+
+## Confidence interval
+
+```text
+method: percentile
+level: 0.95
+lower_percentile: 2.5
+upper_percentile: 97.5
+```
+
+---
+
+## Empty categories
+
+あるiterationで対象カテゴリに有効pairが存在しない場合、そのiterationの対象統計をmissingとする。
+
+CI計算ではmissing iterationを除外する。
+
+最低有効iteration数:
+
+```text
+950
+```
+
+950未満の場合、
+
+```text
+bootstrap_status:
+  FAILED
+```
+
+とする。
+
+---
+
+## Reproducibility
+
+同一latent、metadata、analysis_seedから同一bootstrap結果を再現可能であること。
+
+---
+
+# DEC-B08 — Pixel Baseline
+
+Status: APPROVED  
+Source: review/BLOCKERS.md#B-08
+
+Pixel baselineを必須とする。
+
+目的は、
+
+> latentから読み出されたcolor/shape情報が、生画像の単純な統計または生pixel空間でも容易に読み出せる情報ではないか
+
+を比較することである。
+
+---
+
+## Baseline 1 — Simple image statistics
+
+使用features:
+
+```text
+mean_R
+mean_G
+mean_B
+std_R
+std_G
+std_B
+foreground_fraction
+```
+
+RGB統計のstandard deviationは、
+
+```text
+ddof = 0
+```
+
+とする。
+
+foreground pixel:
+
+```text
+R + G + B > 0
+```
+
+を満たすpixel。
+
+---
+
+## Baseline 2 — Raw pixel linear
+
+入力画像を `[0,1]` へ正規化する。
+
+```text
+3 × 64 × 64
+→ flatten
+→ 12288 features
+```
+
+---
+
+## Feature standardization
+
+両Pixel baselineについてTrain統計のみで標準化する。
+
+```text
+x' = (x - mean_train) / std_train
+```
+
+```text
+ddof: 0
+near_zero_std_threshold: 1e-8
+near_zero_std_action: exclude_feature
+```
+
+Validation/Test統計をscaler fitに使用しない。
+
+---
+
+## Classifier
+
+DEC-B06と完全に同じlogistic regression条件を使用する。
+
+```text
+multinomial logistic regression
+
+penalty: L2
+
+C:
+  0.01
+  0.1
+  1
+  10
+  100
+
+fit_intercept: true
+class_weight: none
+
+solver: lbfgs
+max_iter: 1000
+tolerance: 1e-6
+```
+
+---
+
+## Split usage
+
+```text
+Train:
+  classifier training
+
+Validation:
+  C selection
+
+Test:
+  final evaluation only
+```
+
+収束したcandidateのみを選択対象とする。
+
+Validation accuracy最大を採用し、同率なら最小Cを採用する。
+
+全候補非収束時はFAILEDとする。
+
+---
+
+## Targets
+
+```text
+color
+shape
+```
+
+を別々に評価する。
+
+---
+
+## Required metrics
+
+```text
+train_accuracy
+train_balanced_accuracy
+
+validation_accuracy
+validation_balanced_accuracy
+
+test_accuracy
+test_balanced_accuracy
+
+test_confusion_matrix
+selected_C
+chance_level
+```
+
+---
+
+## Comparison conditions
+
+以下は同じclassifier条件、C grid、選択規則、評価指標を使用する。
+
+```text
+initial Encoder latent probe
+final Encoder latent probe
+simple image statistics baseline
+raw pixel linear baseline
+```
+
+入力featureのみが異なる。
+
+---
+
+## Interpretation constraints
+
+- Pixel baselineをAutoencoder学習へ使用しない。
+- Pixel baseline結果を見て同一runのAutoencoder条件を変更しない。
+- latentがPixel baselineを上回ること自体を成功条件としない。
+- Pixel baselineだけを根拠に概念核の有無を判断しない。
+
+---
+
+# Global Decision Constraints
+
+以下はExperiment 001全体に適用する。
+
+## Research conditions
+
+APPROVEDな研究条件をCodexが独自に変更してはならない。
+
+曖昧な研究条件を発見した場合は実装を停止し、BLOCKERとして報告する。
+
+---
+
+## Label leakage
+
+colorおよびshapeは、
+
+- Autoencoder入力
+- Autoencoder教師信号
+- Autoencoder loss
+- Autoencoder parameter update
+
+に使用してはならない。
+
+評価フェーズでのみ使用する。
+
+---
+
+## Failed runs
+
+失敗したrun、INVALID run、EXPERIMENTAL_FAILURE runを削除してはならない。
+
+既存runを上書きしてはならない。
+
+---
+
+## Post-hoc changes
+
+結果確認後に、
+
+- 成功条件
+- dataset条件
+- model architecture
+- learning conditions
+- primary analysis
+- evaluation metric
+
+を変更して、同一baseline実験として扱ってはならない。
+
+変更が必要な場合は新しいDecisionと新しいrunまたは新しい実験として扱う。
+
+---
+
+## Interpretation
+
+以下だけを根拠に概念核形成を断定してはならない。
+
+- PCA
+- probe accuracy
+- latent distance
+- Pixel baselineとの比較
+- 単一seed
+- 再構成画像
+
+Experiment 001で認める結論は、
+
+> 概念核候補となり得る再現可能な規則的潜在構造が形成されたか
+
+までとする。
