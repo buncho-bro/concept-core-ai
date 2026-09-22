@@ -1,8 +1,8 @@
 # Experiment 001 Decisions
 
 ## DEC-001 Reconstruction Loss
-
-Status: PROPOSED
+Status: SUPERSEDED
+Superseded by: DEC-B05
 
 Question:
 
