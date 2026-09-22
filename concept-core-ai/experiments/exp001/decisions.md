@@ -25,8 +25,9 @@ RGB画像を0〜1の連続値として扱う単純なbaselineとして
 
 Decision:
 
-#DEC-B01
+## DEC-B01 — Success Criteria
 Status: APPROVED
+Source: review/BLOCKERS.md#B-01
 
 Experiment 001の成功条件を以下とする。
 
@@ -110,8 +111,9 @@ interpretation_constraints:
   - 基準未達の結果を成功として再解釈しない。
   - 結果を確認した後に閾値を変更しない。
 
-#DEC-B02
+## DEC-B02 — Dataset Generation
 Status: APPROVED
+Source: review/BLOCKERS.md#B-02
 
 Experiment 001の人工画像生成条件を以下とする。
 
@@ -157,8 +159,9 @@ constraints:
   - 背景は変動させない
   - 実行時augmentationを使用しない
 
-#DEC-B03
-Status: PROPOSED
+## DEC-B03 — Dataset Split
+Status: APPROVED
+Source: review/BLOCKERS.md#B-03
 
 Experiment 001のデータ分割を以下とする。
 
@@ -207,8 +210,8 @@ usage:
   最終評価専用。
   Autoencoderの学習・設定選択には使用しない。
 
-#DEC-B04
-Status: PROPOSED
+## DEC-B04 — Autoencoder Architecture
+Status: APPROVED
 
 Experiment 001のbaselineモデルとして
 Convolutional Autoencoderを使用する。
@@ -320,8 +323,8 @@ constraints:
   - architectureを結果確認後に変更して同一baselineとして扱わない。
   - モデルの総parameter数を記録する。
 
-#DEC-B05
-Status: PROPOSED
+## DEC-B05 — Training Procedure
+Status: APPROVED
 
 Experiment 001 baselineの学習条件を以下とする。
 
@@ -406,8 +409,8 @@ constraints:
   - color/shape metadataを損失計算に使用しない。
   - latent構造を直接誘導する損失を使用しない。
 
-#DEC-B06
-Status: PROPOSED
+## DEC-B06 — Linear Probe
+Status: APPROVED
 
 Experiment 001の線形プローブを以下とする。
 
@@ -480,8 +483,8 @@ constraints:
   - color/shape probeは独立して学習する。
   - probe性能だけを根拠に概念核形成を断定しない。
 
-#DEC-B07
-Status: PROPOSED
+## DEC-B07 — Distance Analysis
+Status: APPROVED
 
 Experiment 001のlatent距離解析を以下とする。
 
@@ -559,8 +562,8 @@ constraints:
   - 距離尺度を結果確認後に変更して主解析として扱わない。
   - 距離差だけを根拠に概念核形成を断定しない。
 
-#DEC-B08
-Status: PROPOSED
+## DEC-B08 — Pixel Baseline
+Status: APPROVED
 
 Experiment 001ではPixel baselineを必須とする。
 
