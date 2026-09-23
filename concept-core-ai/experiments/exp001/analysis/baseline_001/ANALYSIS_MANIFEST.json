@@ -1,0 +1,31 @@
+{
+  "experiment_id": "exp001",
+  "baseline_id": "baseline_001",
+  "formal_classification": "INCONCLUSIVE",
+  "execution_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+  "analysis_source_repository": "https://github.com/buncho-bro/concept-core-ai",
+  "analysis_source_pr": "https://github.com/buncho-bro/concept-core-ai/pull/3",
+  "analysis_source_ref": "ab614500328c08e473abc9c6a9541b5c263b3dbe",
+  "publication_source_commit": "d5c5d6b4e814d622ec8964dd2836fc2502184c23",
+  "analysis_source_paths": [
+    "concept-core-ai/experiments/exp001/spec.md",
+    "concept-core-ai/experiments/exp001/decisions.md",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/RUN_SUMMARY.md",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/RUN_MANIFEST.json",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/aggregate/aggregate_metrics.json",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/aggregate/baseline_manifest.json",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/aggregate/report.md",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/artifacts/exp001-seed-1001-attempt-01.zip",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/artifacts/exp001-seed-1002-attempt-01.zip",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/artifacts/exp001-seed-1003-attempt-01.zip",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/artifacts/exp001-seed-1004-attempt-01.zip",
+    "concept-core-ai/experiments/exp001/run_review/baseline_001_publication/artifacts/exp001-seed-1005-attempt-01.zip"
+  ],
+  "formal_seeds": [1001, 1002, 1003, 1004, 1005],
+  "analysis_type": "post-run scientific interpretation",
+  "post_hoc": true,
+  "formal_classification_modified": false,
+  "new_experiments_executed": 0,
+  "formal_runs_reexecuted": 0,
+  "analysis_status": "ANALYSIS_COMPLETE"
+}
