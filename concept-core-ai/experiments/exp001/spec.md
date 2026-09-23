@@ -2,6 +2,8 @@
 
 ## 潜在空間における共通構造の形成
 
+---
+
 # 0. 概念核について
 
 ## 0.1 背景
@@ -65,8 +67,6 @@ circle = 特定のベクトル
 
 のように、人間が概念核を直接定義する方法を採用しない。
 
-人間が概念核を決定すると、その人間の分類方法、文化、言語、先入観などがモデル内部の概念体系へ直接持ち込まれる可能性があるためである。
-
 そのため、
 
 > **概念核は観測された経験の中に存在する共通性から、モデル自身によって形成されるべきである。**
@@ -112,7 +112,7 @@ Experiment 001では、概念核を、
 
 > **概念核とは、多数の異なる経験に共通して現れ、それらを説明・区別・再構成し、未知の状況においても再利用できる可能性を持つ内部構造である。**
 
-この定義は概念核の機能を定義するものであり、その物理的・数学的な形を定義するものではない。
+この定義は概念核の機能を定義するものであり、その数学的な形を固定するものではない。
 
 ---
 
@@ -245,7 +245,7 @@ channels: RGB
 background: [0, 0, 0]
 ```
 
-保存時のRGB値は `0〜255` とし、モデル入力時には各channelを255で割って `[0.0, 1.0]` に正規化する。
+モデル入力時にはRGB値を255で割り、`[0.0,1.0]` に正規化する。
 
 ---
 
@@ -257,7 +257,7 @@ green: [25, 230, 25]
 blue:  [25, 25, 230]
 ```
 
-各sampleについて、各RGB channelへ独立に、
+各sampleについて各RGB channelへ独立に、
 
 ```text
 U_integer(-10, +10)
@@ -279,7 +279,7 @@ foreground RGBは図形描画前にsample単位で一度だけ決定する。
 - 正三角形
 - 正方形
 
-内部を単色で塗りつぶし、独立した輪郭線は使用しない。
+内部を単色で塗りつぶし、独立したoutlineは使用しない。
 
 ---
 
@@ -378,6 +378,8 @@ final pixel RGBは16 subpixelのRGB値の算術平均とする。
 
 一般的な画像resize filterには依存しない。
 
+算術平均後に追加の整数丸めや量子化を研究条件として導入してはならない。
+
 ---
 
 ## 5.6 Circle geometry
@@ -412,14 +414,12 @@ rotation + 240°
 
 とする。
 
-頂点座標は、
+頂点座標:
 
 ```text
 x = cx + size * cos(theta)
 y = cy - size * sin(theta)
 ```
-
-とする。
 
 rotation=0°では最初の頂点が右方向を向く。
 
@@ -441,8 +441,6 @@ rotation + 270°
 ```
 
 とする。
-
-頂点座標は三角形と同じ座標規約を使用する。
 
 rotation=0°では最初の頂点が右方向を向く。
 
@@ -533,12 +531,12 @@ Test:        900
 ## 6.2 Split procedure
 
 1. 全9,000 sampleを生成する。
-2. 各sampleに一意な `sample_id` を付与する。
+2. 各sampleへ一意な `sample_id` を付与する。
 3. 各color × shapeグループ内で `split_seed` により決定的にshuffleする。
 4. 先頭800件をTrainとする。
 5. 次の100件をValidationとする。
 6. 最後の100件をTestとする。
-7. splitをmetadataへ固定保存する。
+7. split結果をmetadataへ固定保存する。
 
 ---
 
@@ -560,7 +558,7 @@ Train ∪ Validation ∪ Test
 
 でなければならない。
 
-各splitには9種類すべてのcolor × shape組み合わせを含める。
+各splitには全9 color × shape combinationsを含める。
 
 ---
 
@@ -699,7 +697,7 @@ shape: [32]
 
 正式baselineでは32を使用する。
 
-実装上はconfigから変更可能としてよいが、別値を正式baselineとして使用してはならない。
+実装上はconfigから変更可能としてよいが、異なる値を同一正式baselineとして扱ってはならない。
 
 ---
 
@@ -778,7 +776,7 @@ Decoder:
   ConvTranspose2d 64 → 32
 ```
 
-Encoderのlatent出力LinearとDecoder最終ConvTranspose2dには、
+Encoder latent出力LinearとDecoder最終ConvTranspose2dには、
 
 ```text
 Xavier Uniform
@@ -852,7 +850,7 @@ loss:
 
 以下は使用しない。
 
-- 色・形を近付ける損失
+- color/shape誘導損失
 - contrastive loss
 - KL divergence
 - sparsity penalty
@@ -928,7 +926,7 @@ final.pt
 
 `final.pt` は50 epoch終了後。
 
-主解析対象は `final.pt` とする。
+主解析対象は `final.pt`。
 
 Validation lossによるbest checkpoint選択は行わない。
 
@@ -940,7 +938,7 @@ Validation lossによるbest checkpoint選択は行わない。
 
 Validationは、
 
-- Autoencoder parameter update
+- parameter update
 - early stopping
 - checkpoint selection
 
@@ -959,7 +957,7 @@ validation_loss
 learning_rate
 ```
 
-を記録する。
+を保存する。
 
 ---
 
@@ -1027,9 +1025,9 @@ near_zero_std_threshold: 1e-8
 near_zero_std_action: exclude_feature
 ```
 
-initial Encoderについては `initial Train latent` だけからscalerをfitする。
+initial Encoderでは `initial Train latent` のみからscalerをfitする。
 
-final Encoderについては `final Train latent` だけからscalerをfitする。
+final Encoderでは `final Train latent` のみからscalerをfitする。
 
 initial / finalでscalerを共有しない。
 
@@ -1112,16 +1110,15 @@ Validation accuracy最大のCを採用する。
 
 ## 13.7 Non-convergence
 
-非収束candidateは選択対象から除外する。
-
-すべてのC候補が非収束の場合、
+すべてのC候補が非収束した場合、
 
 ```text
-probe_status: FAILED
-reason: NO_CONVERGED_CANDIDATE
+PROBE_FAILED
 ```
 
 とする。
+
+Experiment-level判定はSection 19に従う。
 
 ---
 
@@ -1273,13 +1270,13 @@ bootstrap_95_percent_CI_for_mean
 
 を保存する。
 
-距離分布のstandard deviationには、
+距離分布standard deviationは、
 
 ```text
 ddof = 0
 ```
 
-を使用する。
+とする。
 
 ---
 
@@ -1297,7 +1294,7 @@ seed: analysis_seed
 
 ---
 
-## 15.2 Bootstrap instance handling
+## 15.2 Instance handling
 
 復元抽出された各出現を別個のbootstrap instanceとして扱う。
 
@@ -1307,7 +1304,7 @@ seed: analysis_seed
 
 ---
 
-## 15.3 Bootstrap pairing
+## 15.3 Pairing
 
 各iterationでunique unordered instance pairを構築する。
 
@@ -1334,109 +1331,194 @@ Encoderやprobeを再学習しない。
 
 ## 15.5 Confidence interval
 
-```text
-method: percentile
-level: 0.95
-lower_percentile: 2.5
-upper_percentile: 97.5
-```
-
----
-
-## 15.6 Empty categories
-
-あるiterationで対象カテゴリに有効pairが存在しない場合、そのiterationの対象統計をmissingとする。
-
-CI計算ではmissing iterationを除外する。
-
-最低有効iteration数:
-
-```text
-950
-```
-
-950未満の場合、
-
-```text
-bootstrap_status: FAILED
-```
-
-とする。
-
-同一latent、metadata、analysis_seedから同一bootstrap結果を再現可能であること。
-
----
-15.7 Bootstrap RNG
-
-Bootstrap resamplingには PCG64 を使用する。
-
-RNGは analysis_seed から一度だけ初期化する。
-
-1000 iteration全体で1つの連続したrandom streamを使用し、iterationごとに再seedしてはならない。
-
-各iterationではTest sample indexについて、
-
-low: 0
-high: 900
-size: 900
-replacement: true
-
-として900件を復元抽出する。
-
-Test sample indexは、解析入力として保存された決定的sample順序に対応する。
-
-15.8 Bootstrap percentile convention
+percentile bootstrapを使用する。
 
 有効なbootstrap meanを昇順に、
 
+```text
 y[0] <= y[1] <= ... <= y[n-1]
+```
 
 とする。
 
-quantile q について、
+quantile `q` について、
 
+```text
 h = (n - 1) * q
 i = floor(h)
 f = h - i
+```
 
 とする。
 
-i < n - 1 の場合、
+`i < n - 1` の場合、
 
+```text
 Q(q)
 =
 (1 - f) * y[i]
 +
 f * y[i + 1]
+```
 
 とする。
 
-i = n - 1 の場合、
+`i = n - 1` の場合、
 
+```text
 Q(q) = y[n - 1]
+```
 
 とする。
 
-95% CIは、
+95% CI:
 
+```text
 lower = Q(0.025)
 upper = Q(0.975)
+```
 
-とする。
+---
 
-有効iteration数が950未満の場合、
+## 15.6 Missing iterations
 
+対象カテゴリに有効pairが存在しないiterationはmissingとして除外する。
+
+```text
+valid_iterations >= 950
+```
+
+の場合のみCIを有効とする。
+
+```text
+valid_iterations < 950
+```
+
+の場合、
+
+```text
 BOOTSTRAP_CI_FAILED
+```
 
 とする。
+
+---
+
+## 15.7 Bootstrap RNG implementation
+
+正式baselineでは以下を使用する。
+
+```text
+bit_generator:
+  numpy.random.PCG64
+
+generator:
+  numpy.random.Generator
+```
+
+初期化:
+
+```python
+rng = numpy.random.Generator(
+    numpy.random.PCG64(analysis_seed)
+)
+```
+
+`analysis_seed` はSection 3で導出された32-bit unsigned integerをそのまま `numpy.random.PCG64` constructorへ渡す。
+
+独自seed展開処理を追加してはならない。
+
+`numpy.random.default_rng()` へ依存してはならない。
+
+---
+
+## 15.8 Bootstrap index generation
+
+各iterationで以下と同一の方法によりindex列を生成する。
+
+```python
+indices = rng.integers(
+    low=0,
+    high=900,
+    size=900,
+    endpoint=False,
+    dtype=numpy.int64,
+)
+```
+
+各indexは、
+
+```text
+0 <= index < 900
+```
+
+を満たす。
+
+---
+
+## 15.9 RNG stream
+
+RNGは1000 iteration開始前に一度だけ生成する。
+
+1000 iteration全体で同一Generator instanceを連続使用する。
+
+iterationごとに、
+
+- 再seed
+- Generator再生成
+- PCG64再生成
+
+を行ってはならない。
+
+iterationは、
+
+```text
+0 ... 999
+```
+
+の順番で実行する。
+
+---
+
+## 15.10 Test sample mapping
+
+index `0...899` は、保存済みTest sampleの決定的順序へ対応する。
+
+この順序はbootstrap開始前に固定し、iteration間で変更してはならない。
+
+Test sample order自体をartifactから再構成可能でなければならない。
+
+---
+
+## 15.11 NumPy version
+
+正式baselineの5 runでは同一NumPy versionを使用する。
+
+NumPy versionをrun metadataおよびExperiment-level manifestへ保存する。
+
+異なるNumPy versionのbootstrap結果を同一正式baseline集合へ混在させてはならない。
+
+---
+
+## 15.12 Prohibited RNG alternatives
+
+正式baselineのbootstrapでは以下を使用しない。
+
+- `numpy.random.default_rng()` のdefault bit generator依存
+- `numpy.random.RandomState`
+- legacy global `numpy.random` state
+- Python標準 `random`
+- PyTorch RNG
+- framework独自RNG
+- 独自PCG64 integer mapping
+
+---
 
 # 16. Pixel Baseline
 
 Pixel baselineを必須とする。
 
-## 16.1 Baseline 1 — Simple image statistics
-
-使用features:
+## 16.1 Simple image statistics
 
 ```text
 mean_R
@@ -1448,13 +1530,11 @@ std_B
 foreground_fraction
 ```
 
-RGB standard deviationは、
+RGB standard deviation:
 
 ```text
 ddof = 0
 ```
-
-とする。
 
 foreground pixel:
 
@@ -1462,11 +1542,9 @@ foreground pixel:
 R + G + B > 0
 ```
 
-を満たすpixel。
-
 ---
 
-## 16.2 Baseline 2 — Raw pixel linear
+## 16.2 Raw pixel linear
 
 入力画像を `[0,1]` に正規化する。
 
@@ -1480,7 +1558,7 @@ R + G + B > 0
 
 ## 16.3 Feature standardization
 
-両Pixel baselineについてTrain統計のみで標準化する。
+Train統計のみで標準化する。
 
 ```text
 x' = (x - mean_train) / std_train
@@ -1498,7 +1576,7 @@ Validation / Test統計をscaler fitに使用しない。
 
 ## 16.4 Classifier
 
-Linear Probeと完全に同じlogistic regression条件を使用する。
+Linear Probeと完全に同じclassifier条件を使用する。
 
 ```text
 multinomial logistic regression
@@ -1539,7 +1617,13 @@ Test:
 
 Validation accuracy最大を採用し、同率なら最小Cを採用する。
 
-全候補非収束時はFAILEDとする。
+全候補非収束時は、
+
+```text
+PIXEL_BASELINE_FAILED
+```
+
+とする。
 
 ---
 
@@ -1595,7 +1679,7 @@ Experiment 001は概念核の存在を証明しない。
 
 ## 17.1 Probe delta
 
-各attribute `A ∈ {color, shape}`について、
+各attribute `A ∈ {color, shape}` について、
 
 ```text
 probe_delta_A(seed)
@@ -1697,7 +1781,7 @@ SUCCESS
 
 ---
 
-## 17.6 INCONCLUSIVE
+## 17.6 INCONCLUSIVE — positive trend
 
 SUCCESSではないが、colorまたはshapeの少なくとも一方について、
 
@@ -1719,13 +1803,11 @@ INCONCLUSIVE
 
 とする。
 
-また、正式5 runの中に `EXPERIMENTAL_FAILURE` が存在し、成功判定に必要な指標を完全に計算できない場合もINCONCLUSIVEとする。
-
 ---
 
 ## 17.7 NO_EVIDENCE
 
-正式5 runすべてで必要な評価が正常に完了し、SUCCESSではなく、colorとshapeの両方について、
+正式5 runについてSUCCESS判定に必要な指標がすべて存在し、SUCCESSでもINCONCLUSIVEでもなく、colorとshapeの両方について、
 
 ```text
 median(probe_delta_A) <= 0
@@ -1753,163 +1835,166 @@ NO_EVIDENCEは概念核そのものが存在しないことを意味しない。
 - Pixel baselineとの大小関係
 - 単一seedの高精度
 - raw Euclidean distanceのみの差
+- bootstrap CIそのもの
 - 再構成画像の見た目
 
 SUCCESSでも「概念核を発見した」とは結論しない。
 
 ---
 
-18. Run状態と評価状態
+# 18. Run execution statusとEvaluation flags
 
-18.1 Run execution status
+## 18.1 Run execution status
 
 各正式runは、
 
+```text
 VALID
 INVALID
 EXPERIMENTAL_FAILURE
+```
 
-のいずれかのexecution statusを持つ。
+のいずれかを持つ。
 
-VALID
+### VALID
 
 仕様どおり実行され、科学的解析へ使用可能なrun。
 
-INVALID
+### INVALID
 
 技術的理由により科学的結果として使用できないrun。
 
 例:
 
-実装bug
-
-spec違反
-
-label leakage
-
-ファイル破損
-
-実行中断
-
-hardware / environment障害
-
-VERIFY失敗
+- 実装bug
+- spec違反
+- label leakage
+- ファイル破損
+- 実行中断
+- hardware / environment障害
+- VERIFY失敗
 
 INVALID runは削除しない。
 
-EXPERIMENTAL_FAILURE
+### EXPERIMENTAL_FAILURE
 
 仕様どおり実行されたが、
 
-loss発散
-
-NaN
-
-Autoencoder学習失敗
-
-主要指標取得不能
+- loss発散
+- NaN
+- Autoencoder学習失敗
+- 学習結果により主要指標取得不能
 
 など、実験そのものが成立しなかったrun。
 
 EXPERIMENTAL_FAILUREも削除しない。
 
-18.2 Evaluation flags
+---
+
+## 18.2 Evaluation flags
 
 必要に応じて以下をrunへ記録する。
 
+```text
 PROBE_FAILED
 DISTANCE_FAILED
 BOOTSTRAP_CI_FAILED
 PIXEL_BASELINE_FAILED
+```
 
 複数flagを同時に持つことを許可する。
 
-18.3 Probe failure
+---
 
-すべてのC候補が非収束するなどの理由によりSUCCESS判定に必要なprobe指標を取得できない場合、
+## 18.3 PROBE_FAILED
 
-PROBE_FAILED
+SUCCESS判定に必要なprobe指標を取得できない場合に付与する。
 
-とする。
+---
 
-この場合、正式5 runすべてが存在していても完全なSUCCESS / NO_EVIDENCE判定は行えない。
+## 18.4 DISTANCE_FAILED
 
-18.4 Distance failure
+distance contrastそのものを計算できない場合に付与する。
 
-distance contrastそのものを計算できない場合、
+---
 
-DISTANCE_FAILED
+## 18.5 BOOTSTRAP_CI_FAILED
 
-とする。
+CIのみが算出不能の場合に付与する。
 
-この場合、完全なSUCCESS / NO_EVIDENCE判定は行えない。
-
-18.5 Bootstrap CI failure
-
-CIのみが算出不能の場合、
-
-BOOTSTRAP_CI_FAILED
-
-とする。
-
-Bootstrap CIはSUCCESS条件ではないため、distance contrast本体が正常に存在する限り科学的三値判定は継続可能とする。
+Bootstrap CIはSUCCESS条件ではないため、distance contrast本体が正常なら科学的三値判定は継続可能とする。
 
 Experiment-level reportへ、
 
+```text
 DISTANCE_CI_INCOMPLETE
+```
 
 を記録する。
 
-18.6 Pixel baseline failure
+---
 
-Pixel baselineを完了できない場合、
+## 18.6 PIXEL_BASELINE_FAILED
 
-PIXEL_BASELINE_FAILED
-
-とする。
+Pixel baselineを完了できない場合に付与する。
 
 Pixel baselineはSUCCESS条件ではないため、科学的三値判定は継続可能とする。
 
 Experiment-level reportへ、
 
+```text
 CONTROL_INCOMPLETE
+```
 
 を記録する。
 
-18.7 NOT_EVALUATED
+---
+
+# 19. Experiment-level判定
+
+## 19.1 NOT_EVALUATED
 
 正式5 master seedについて、
 
+```text
 同一git commitのnon-INVALID run
+```
 
 が5件すべて揃っていない場合、
 
+```text
 NOT_EVALUATED
+```
 
 とする。
 
 NOT_EVALUATEDは科学的結論ではない。
 
-18.8 INCONCLUSIVE due to missing primary evidence
+---
+
+## 19.2 Missing primary evidence
 
 正式5 seedすべてについて同一commitのnon-INVALID runが存在するが、
 
-EXPERIMENTAL_FAILURE
+- EXPERIMENTAL_FAILURE
+- PROBE_FAILED
+- DISTANCE_FAILED
 
-PROBE_FAILED
+のいずれかによりSUCCESS判定に必要な5 seed分のprobeまたはdistance指標が完全に揃わない場合、
 
-DISTANCE_FAILED
-
-のいずれかによりSUCCESS判定に必要な5 seed分の指標が完全に揃わない場合、
-
+```text
 INCONCLUSIVE
+```
 
 とする。
 
-18.9 Eligibility for SUCCESS / NO_EVIDENCE
+---
+
+## 19.3 Eligibility for SUCCESS / NO_EVIDENCE
 
 SUCCESSまたはNO_EVIDENCEを判定できるのは、
 
+```text
 formal run count = 5
 
 AND
@@ -1923,17 +2008,62 @@ all 5 runs contain required probe metrics
 AND
 
 all 5 runs contain required distance metrics
+```
 
 の場合のみとする。
 
 以下だけではeligibilityを失わない。
 
+```text
 BOOTSTRAP_CI_FAILED
 PIXEL_BASELINE_FAILED
+```
 
-# 19. Run-levelとExperiment-level成果物
+---
 
-## 19.1 Run-level
+## 19.4 Aggregation precedence
+
+Experiment-levelの状態判定は以下の順序で行う。
+
+```text
+1.
+正式5 seedのnon-INVALID runが5件揃っているか
+
+NO
+-> NOT_EVALUATED
+
+2.
+SUCCESS判定に必要なprobe/distance指標が
+5 seedすべてについて存在するか
+
+NO
+-> INCONCLUSIVE
+
+3.
+SUCCESS条件を満たすか
+
+YES
+-> SUCCESS
+
+4.
+INCONCLUSIVEの正方向変化条件を満たすか
+
+YES
+-> INCONCLUSIVE
+
+5.
+それ以外
+
+-> NO_EVIDENCE
+```
+
+`BOOTSTRAP_CI_FAILED` および `PIXEL_BASELINE_FAILED` は、この判定順序を変更しない。
+
+---
+
+# 20. Run-levelとExperiment-level成果物
+
+## 20.1 Run-level
 
 個々のrunでは、
 
@@ -1958,7 +2088,7 @@ ARTIFACTS
 
 ---
 
-## 19.2 Experiment-level
+## 20.2 Experiment-level
 
 正式5 runを集約したExperiment-level成果物でのみ、最終科学的判定を行う。
 
@@ -1980,13 +2110,14 @@ aggregate/
 
 ---
 
-## 19.3 Baseline manifest
+## 20.3 Baseline manifest
 
 最低限、
 
 ```text
 experiment_id
 git_commit
+numpy_version
 
 formal_master_seeds:
   - 1001
@@ -1999,18 +2130,19 @@ formal_master_seeds:
   master_seed
   run_id
   derived seeds
-  status
+  execution_status
+  evaluation_flags
 ```
 
 を保存する。
 
 ---
 
-# 20. Run-level必須成果物
+# 21. Run-level必須成果物
 
 各runについて最低限以下を保存する。
 
-## 20.1 実験設定
+## 21.1 実験設定
 
 ```text
 experiment_id
@@ -2025,6 +2157,8 @@ loader_seed
 probe_seed
 analysis_seed
 
+numpy_version
+
 dataset configuration
 model configuration
 parameter count
@@ -2034,7 +2168,7 @@ analysis configuration
 
 ---
 
-## 20.2 Dataset metadata
+## 21.2 Dataset metadata
 
 全9,000 sampleについて最低限、
 
@@ -2057,7 +2191,7 @@ generation_seed
 
 ---
 
-## 20.3 Checkpoints
+## 21.3 Checkpoints
 
 ```text
 initial.pt
@@ -2079,7 +2213,7 @@ model_configuration
 
 ---
 
-## 20.4 Training log
+## 21.4 Training log
 
 ```text
 epoch
@@ -2092,7 +2226,7 @@ learning_rate
 
 ---
 
-## 20.5 Latent vectors
+## 21.5 Latent vectors
 
 以下6状態を区別可能に保存する。
 
@@ -2110,7 +2244,7 @@ final × test
 
 ---
 
-## 20.6 PCA
+## 21.6 PCA
 
 initial / finalそれぞれについて、
 
@@ -2125,7 +2259,7 @@ initial / finalそれぞれについて、
 
 ---
 
-## 20.7 Distance analysis
+## 21.7 Distance analysis
 
 initial / finalそれぞれについて、
 
@@ -2136,12 +2270,13 @@ initial / finalそれぞれについて、
 - bootstrap CI
 - Train mean/std
 - 除外次元
+- bootstrap status
 
 を保存する。
 
 ---
 
-## 20.8 Linear probe
+## 21.8 Linear probe
 
 initial / finalそれぞれについてcolor・shapeの、
 
@@ -2162,7 +2297,7 @@ candidate convergence status
 
 ---
 
-## 20.9 Pixel baseline
+## 21.9 Pixel baseline
 
 以下2種類についてcolor / shapeを評価し保存する。
 
@@ -2173,7 +2308,7 @@ raw_pixel_linear
 
 ---
 
-## 20.10 Reconstruction quality
+## 21.10 Reconstruction quality
 
 最低限、
 
@@ -2189,7 +2324,7 @@ raw_pixel_linear
 
 ---
 
-## 20.11 Run report
+## 21.11 Run report
 
 各runのreportには最低限、
 
@@ -2203,38 +2338,58 @@ raw_pixel_linear
 8. METRICS
 9. WARNINGS
 10. ARTIFACTS
+11. execution status
+12. evaluation flags
 
-を記載する。
+を記録する。
 
 run単位で最終三値判定を行わない。
 
 ---
 
-21.x Experiment-level aggregation precedence
+# 22. Experiment-level成果物
 
-Experiment-levelの状態判定は以下の順序で行う。
+正式5 runを集約した成果物には最低限、
 
-1. 正式5 seedのnon-INVALID runが5件揃っているか
-   NO  -> NOT_EVALUATED
+- 正式run集合
+- git commit
+- NumPy version
+- 各runのexecution status
+- evaluation flags
+- probe_delta
+- distance_contrast
+- distance_delta
+- 5 seed中央値
+- 4/5条件
+- SUCCESS条件判定
+- Pixel baseline要約
+- run間変動
+- incomplete-control warnings
+- 最終科学的判定
 
-2. SUCCESS判定に必要なprobe/distance指標が
-   5 seedすべてについて存在するか
-   NO  -> INCONCLUSIVE
+を保存する。
 
-3. SUCCESS条件を満たすか
-   YES -> SUCCESS
+Experiment-level reportのみが、
 
-4. INCONCLUSIVEの正方向変化条件を満たすか
-   YES -> INCONCLUSIVE
+```text
+SUCCESS
+INCONCLUSIVE
+NO_EVIDENCE
+```
 
-5. それ以外
-   -> NO_EVIDENCE
+を記録する。
 
-BOOTSTRAP_CI_FAILED および PIXEL_BASELINE_FAILED は、この判定順序を変更しない。
+また、必要に応じて管理状態として、
 
-ただしreportに該当する不完全性を明示する。
+```text
+NOT_EVALUATED
+```
 
-# 22. 再現性
+を記録する。
+
+---
+
+# 23. 再現性
 
 すべてのrunについて、
 
@@ -2243,6 +2398,7 @@ experiment_id
 run_id
 git_commit
 全seed
+NumPy version
 dataset_config
 model_config
 training_config
@@ -2252,14 +2408,15 @@ results
 
 を記録する。
 
-同じcommit、設定、seedから、
+同じcommit、設定、seed、依存versionから、
 
 - dataset
 - split
 - initial parameter
 - DataLoader順序
 - probe設定
-- bootstrap結果
+- bootstrap index列
+- bootstrap CI
 
 を可能な限り再現できること。
 
@@ -2269,7 +2426,7 @@ results
 
 ---
 
-# 23. Experiment 001では行わないこと
+# 24. Experiment 001では行わないこと
 
 以下は後続実験に回す。
 
@@ -2294,7 +2451,7 @@ Experiment 001では、
 
 ---
 
-# 24. 研究上の原則
+# 25. 研究上の原則
 
 本実験では以下を守る。
 
@@ -2316,7 +2473,7 @@ Experiment 001では、
 
 **・承認済み研究条件を実装側で暗黙に変更しない。**
 
-**・曖昧な研究条件が見つかった場合は実装を停止し、BLOCKERとして報告する。**
+**・曖昧な研究条件が見つかった場合はIMPLEMENTを停止し、BLOCKERとして報告する。**
 
 ---
 
