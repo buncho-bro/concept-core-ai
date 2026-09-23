@@ -1,0 +1,17 @@
+{
+  "checked_at_utc": "2026-09-23T12:28:44.039832+00:00",
+  "execution_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+  "five_run_integrities_valid": true,
+  "common_environment": true,
+  "all_installed_packages_unchanged": true,
+  "protected_hashes_match_preflight": true,
+  "verification_gate_passed": true,
+  "formal_seeds_exact": true,
+  "post_hoc_changes": "NONE",
+  "source_aggregate_sha256": {
+    "aggregate_metrics.json": "1cfde092a94f3bca528c2521ed2188ae55bdf444a64c769b9f789388193560aa",
+    "baseline_manifest.json": "32bf5f3a7e8af33483a1106578f1b85b7633735d4c1ed4a58b744783fda2bef6",
+    "report.md": "6a116772d04b245094557a185bcb63ca55209949d747f50cba21482dca3b908e"
+  },
+  "source_run_manifest_sha256": "a5c4bbb638de06d609c92a17a60ab6b4b16690dd88961a5ce854a493644a8108"
+}
