@@ -1,0 +1,31 @@
+{
+  "repository": "buncho-bro/concept-core-ai",
+  "ref": "207bee36f2a5b1b57de2d73d582ef9f890dbe855",
+  "files": [
+    {
+      "path": "concept-core-ai/experiments/exp001/spec.md",
+      "git_blob_sha": "980bb0ba3830f08a8a99aacc0c5147695ebe091b",
+      "url": "https://github.com/buncho-bro/concept-core-ai/blob/207bee36f2a5b1b57de2d73d582ef9f890dbe855/concept-core-ai/experiments/exp001/spec.md"
+    },
+    {
+      "path": "concept-core-ai/experiments/exp001/decisions.md",
+      "git_blob_sha": "7751de576220cf898653341304aabe9b4393da94",
+      "url": "https://github.com/buncho-bro/concept-core-ai/blob/207bee36f2a5b1b57de2d73d582ef9f890dbe855/concept-core-ai/experiments/exp001/decisions.md"
+    },
+    {
+      "path": "concept-core-ai/experiments/exp001/review/final_review_v4/READINESS.md",
+      "git_blob_sha": "a297a86e4d044f1d707dfe0c70e0b42d32f3a53c",
+      "url": "https://github.com/buncho-bro/concept-core-ai/blob/207bee36f2a5b1b57de2d73d582ef9f890dbe855/concept-core-ai/experiments/exp001/review/final_review_v4/READINESS.md"
+    },
+    {
+      "path": "concept-core-ai/experiments/exp001/review/final_review_v4/VERIFICATION_PLAN.md",
+      "git_blob_sha": "c12d1df0981a2b45d00d2e5d90b959fa9c88cc4e",
+      "url": "https://github.com/buncho-bro/concept-core-ai/blob/207bee36f2a5b1b57de2d73d582ef9f890dbe855/concept-core-ai/experiments/exp001/review/final_review_v4/VERIFICATION_PLAN.md"
+    },
+    {
+      "path": "concept-core-ai/experiments/exp001/review/final_review_v4/IMPLEMENTATION_DETAILS.md",
+      "git_blob_sha": "a4313be03ba0c4fa98a99bc4214bad0d74329981",
+      "url": "https://github.com/buncho-bro/concept-core-ai/blob/207bee36f2a5b1b57de2d73d582ef9f890dbe855/concept-core-ai/experiments/exp001/review/final_review_v4/IMPLEMENTATION_DETAILS.md"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "concept-core-exp001"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+description = "Approved Experiment 001 implementation"
+dependencies = [
+  "numpy==2.3.5", "torch==2.7.1", "scipy==1.15.3",
+  "scikit-learn==1.6.1", "matplotlib==3.10.3", "threadpoolctl==3.6.0",
+]
+
+[project.optional-dependencies]
+verify = ["pytest==8.4.1"]
+
+[project.scripts]
+exp001 = "exp001.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"

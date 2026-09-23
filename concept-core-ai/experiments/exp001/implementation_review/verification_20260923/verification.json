@@ -1,0 +1,44 @@
+{
+  "mode": "IMPLEMENT_VERIFY",
+  "formal_runs_executed": 0,
+  "exit_code": 0,
+  "implementation": {
+    "pyproject.toml": "c09b1d2114cf79a8864108c6c88a0d75f70b3bf4e714027a79fefe6c843d0b52",
+    "requirements-lock.txt": "1908334288a05d09be644b4938b8510bbca4410bb08b2d22c929f310675190cc",
+    "src/exp001/__init__.py": "efd51737e982e23577f68e290c48eb7de009a2b20a6796003bafd21bc6280c7a",
+    "src/exp001/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/exp001/aggregation.py": "476aae546a6db49240faf6ecd571dd6a9efe249542f301950f01f9e81dd24e7b",
+    "src/exp001/artifacts.py": "b359e7462b2f46e5d70e728f52496fb0f6d3db6d3faa8ea631f211ea2b15fe81",
+    "src/exp001/cli.py": "bbfd20e2fd3d412b1d819e91bd8ddddd9f3e036c90db571c6e43b72aa4f4920f",
+    "src/exp001/config.py": "1658cfb67df175d5b0ff1559a18e8186f5407981e4ab3fc25baa70ee1240d606",
+    "src/exp001/data.py": "8dbfb2799807921df823d20bb697ca4f08c07d9059f58dad0537adc31c04cda6",
+    "src/exp001/distance.py": "4cbaf922afcb79ddecf0f54f3d6ab7a3a95bab4b9d816b6a5c2e43bb02f83ca4",
+    "src/exp001/evaluation.py": "10b5f88b221c7e054f29f3515ce41f48344f48c80780b9f229398cdf6a956cbd",
+    "src/exp001/model.py": "013038e1cad82027caeb0f4eb1e25a77d33662cbfe210677700db47273af6554",
+    "src/exp001/runner.py": "7b9781c67e4b828026591ce4406303d656e2d10136fbf1ee8c2963fc0be99355",
+    "src/exp001/training.py": "4e2852970a2835898919d4728c1482fdcf7504b2381e9f3e82ac018f03f41b0c",
+    "src/exp001/visualization.py": "b1450a712dbbcb38acccfe8641f73b21a2f10f9060ab95a8b0181dfea8d6b927",
+    "tests/conftest.py": "2b375db8e0c0cdd2bcb6be4246d22118486f1e3a3201570ff80f263f48a3021e",
+    "tests/test_aggregation.py": "35d348ae00d16e1ae7713ac385a014f5d0b3ec75154974f73b0488c29020c603",
+    "tests/test_artifacts.py": "e535c9599a4caaec9f99308f5e8bfd6d4b6792bed66cf6cad0078b1e48de6c20",
+    "tests/test_data.py": "e51a8e5ffa667166e1e70b4690fd9565de8c62bbed6604562854f2af1530e809",
+    "tests/test_distance.py": "8de5d5cfdb19e7e53cee6e16600190466e30ce1dd3a3a348b23aeb91bb07b08f",
+    "tests/test_evaluation.py": "131871bf4d348a5f825dd0c7961adac7100b276f321e878d44c515d493e2cec3",
+    "tests/test_model_training.py": "c4825e3552946a807a65201292c3e6147aeeda940cc330511ddaf660ac8168ed",
+    "tests/test_pipeline.py": "b409128853849268b5bbd90162aef599335ffe8a7cfc75ccd8d2e3b64293916b"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "REDACTED_FOR_GITHUB_PUBLICATION",
+    "packages": {
+      "numpy": "2.3.5",
+      "torch": "2.7.1",
+      "scipy": "1.15.3",
+      "scikit-learn": "1.6.1",
+      "matplotlib": "3.10.3",
+      "threadpoolctl": "3.6.0",
+      "pytest": "8.4.1"
+    }
+  },
+  "publication_note": "Personal paths, machine identity and OS details removed. Run verify after checkout before formal execution."
+}
