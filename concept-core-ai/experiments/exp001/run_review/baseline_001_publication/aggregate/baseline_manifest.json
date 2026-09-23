@@ -1,0 +1,359 @@
+{
+  "experiment_id": "exp001",
+  "formal_master_seeds": [
+    1001,
+    1002,
+    1003,
+    1004,
+    1005
+  ],
+  "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+  "numpy_version": "2.3.5",
+  "runs": [
+    {
+      "master_seed": 1001,
+      "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+      "numpy_version": "2.3.5",
+      "formal": true,
+      "seeds": {
+        "master_seed": 1001,
+        "generation_seed": 1868740972,
+        "split_seed": 2343864617,
+        "model_seed": 175629694,
+        "loader_seed": 3608716037,
+        "probe_seed": 872121090,
+        "analysis_seed": 3362619837
+      },
+      "run_id": "exp001-seed-1001-attempt-01",
+      "execution_status": "VALID",
+      "evaluation_flags": [],
+      "complete": true,
+      "reason": null,
+      "primary": {
+        "color": {
+          "initial_accuracy": 0.9977777777777778,
+          "initial_correct": 898,
+          "initial_total": 900,
+          "initial_contrast": 1.1203604835913685,
+          "final_accuracy": 0.9977777777777778,
+          "final_correct": 898,
+          "final_total": 900,
+          "final_contrast": 0.14013681178385262
+        },
+        "shape": {
+          "initial_accuracy": 0.72,
+          "initial_correct": 648,
+          "initial_total": 900,
+          "initial_contrast": 0.5870130250112258,
+          "final_accuracy": 0.7455555555555555,
+          "final_correct": 671,
+          "final_total": 900,
+          "final_contrast": 4.008967516292749
+        }
+      },
+      "path": "runs/exp001-seed-1001-attempt-01",
+      "pixel_baseline_summary": {
+        "simple_image_statistics": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7333333333333333,
+            "test_balanced_accuracy": 0.7333333333333334,
+            "selected_C": 100.0
+          }
+        },
+        "raw_pixel_linear": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7822222222222223,
+            "test_balanced_accuracy": 0.7822222222222223,
+            "selected_C": 0.01
+          }
+        }
+      }
+    },
+    {
+      "master_seed": 1002,
+      "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+      "numpy_version": "2.3.5",
+      "formal": true,
+      "seeds": {
+        "master_seed": 1002,
+        "generation_seed": 126585227,
+        "split_seed": 3367851281,
+        "model_seed": 3774638264,
+        "loader_seed": 3921397352,
+        "probe_seed": 2487890218,
+        "analysis_seed": 3806436023
+      },
+      "run_id": "exp001-seed-1002-attempt-01",
+      "execution_status": "VALID",
+      "evaluation_flags": [],
+      "complete": true,
+      "reason": null,
+      "primary": {
+        "color": {
+          "initial_accuracy": 0.9988888888888889,
+          "initial_correct": 899,
+          "initial_total": 900,
+          "initial_contrast": 1.833063731375102,
+          "final_accuracy": 1.0,
+          "final_correct": 900,
+          "final_total": 900,
+          "final_contrast": 0.26241131035919096
+        },
+        "shape": {
+          "initial_accuracy": 0.7066666666666667,
+          "initial_correct": 636,
+          "initial_total": 900,
+          "initial_contrast": 0.5187361128187868,
+          "final_accuracy": 0.7522222222222222,
+          "final_correct": 677,
+          "final_total": 900,
+          "final_contrast": 3.5600548847518985
+        }
+      },
+      "path": "runs/exp001-seed-1002-attempt-01",
+      "pixel_baseline_summary": {
+        "simple_image_statistics": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7422222222222222,
+            "test_balanced_accuracy": 0.7422222222222222,
+            "selected_C": 100.0
+          }
+        },
+        "raw_pixel_linear": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7777777777777778,
+            "test_balanced_accuracy": 0.7777777777777777,
+            "selected_C": 0.01
+          }
+        }
+      }
+    },
+    {
+      "master_seed": 1003,
+      "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+      "numpy_version": "2.3.5",
+      "formal": true,
+      "seeds": {
+        "master_seed": 1003,
+        "generation_seed": 3868111038,
+        "split_seed": 3188101665,
+        "model_seed": 3189612931,
+        "loader_seed": 938244453,
+        "probe_seed": 1387611104,
+        "analysis_seed": 1088312192
+      },
+      "run_id": "exp001-seed-1003-attempt-01",
+      "execution_status": "VALID",
+      "evaluation_flags": [],
+      "complete": true,
+      "reason": null,
+      "primary": {
+        "color": {
+          "initial_accuracy": 0.9911111111111112,
+          "initial_correct": 892,
+          "initial_total": 900,
+          "initial_contrast": 1.3255227719645486,
+          "final_accuracy": 1.0,
+          "final_correct": 900,
+          "final_total": 900,
+          "final_contrast": 0.04181734864113107
+        },
+        "shape": {
+          "initial_accuracy": 0.6822222222222222,
+          "initial_correct": 614,
+          "initial_total": 900,
+          "initial_contrast": 0.3502293795754552,
+          "final_accuracy": 0.7622222222222222,
+          "final_correct": 686,
+          "final_total": 900,
+          "final_contrast": 4.277556697995431
+        }
+      },
+      "path": "runs/exp001-seed-1003-attempt-01",
+      "pixel_baseline_summary": {
+        "simple_image_statistics": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7333333333333333,
+            "test_balanced_accuracy": 0.7333333333333334,
+            "selected_C": 100.0
+          }
+        },
+        "raw_pixel_linear": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7811111111111111,
+            "test_balanced_accuracy": 0.7811111111111112,
+            "selected_C": 0.01
+          }
+        }
+      }
+    },
+    {
+      "master_seed": 1004,
+      "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+      "numpy_version": "2.3.5",
+      "formal": true,
+      "seeds": {
+        "master_seed": 1004,
+        "generation_seed": 241561755,
+        "split_seed": 2510738443,
+        "model_seed": 221624297,
+        "loader_seed": 2834121831,
+        "probe_seed": 2095674109,
+        "analysis_seed": 2491338321
+      },
+      "run_id": "exp001-seed-1004-attempt-01",
+      "execution_status": "VALID",
+      "evaluation_flags": [],
+      "complete": true,
+      "reason": null,
+      "primary": {
+        "color": {
+          "initial_accuracy": 0.9866666666666667,
+          "initial_correct": 888,
+          "initial_total": 900,
+          "initial_contrast": 1.1318982705492235,
+          "final_accuracy": 1.0,
+          "final_correct": 900,
+          "final_total": 900,
+          "final_contrast": 0.36093464971387945
+        },
+        "shape": {
+          "initial_accuracy": 0.6944444444444444,
+          "initial_correct": 625,
+          "initial_total": 900,
+          "initial_contrast": 0.5305864529756805,
+          "final_accuracy": 0.7233333333333334,
+          "final_correct": 651,
+          "final_total": 900,
+          "final_contrast": 3.6518602226345545
+        }
+      },
+      "path": "runs/exp001-seed-1004-attempt-01",
+      "pixel_baseline_summary": {
+        "simple_image_statistics": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7222222222222222,
+            "test_balanced_accuracy": 0.7222222222222223,
+            "selected_C": 100.0
+          }
+        },
+        "raw_pixel_linear": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7755555555555556,
+            "test_balanced_accuracy": 0.7755555555555556,
+            "selected_C": 0.01
+          }
+        }
+      }
+    },
+    {
+      "master_seed": 1005,
+      "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+      "numpy_version": "2.3.5",
+      "formal": true,
+      "seeds": {
+        "master_seed": 1005,
+        "generation_seed": 3363189113,
+        "split_seed": 1105724909,
+        "model_seed": 1574440818,
+        "loader_seed": 563761927,
+        "probe_seed": 3101156538,
+        "analysis_seed": 1857226719
+      },
+      "run_id": "exp001-seed-1005-attempt-01",
+      "execution_status": "VALID",
+      "evaluation_flags": [],
+      "complete": true,
+      "reason": null,
+      "primary": {
+        "color": {
+          "initial_accuracy": 0.9911111111111112,
+          "initial_correct": 892,
+          "initial_total": 900,
+          "initial_contrast": 0.9753485476548551,
+          "final_accuracy": 0.9888888888888889,
+          "final_correct": 890,
+          "final_total": 900,
+          "final_contrast": 0.5300953911682411
+        },
+        "shape": {
+          "initial_accuracy": 0.7422222222222222,
+          "initial_correct": 668,
+          "initial_total": 900,
+          "initial_contrast": 0.7527545562517979,
+          "final_accuracy": 0.7388888888888889,
+          "final_correct": 665,
+          "final_total": 900,
+          "final_contrast": 3.8890255125945834
+        }
+      },
+      "path": "runs/exp001-seed-1005-attempt-01",
+      "pixel_baseline_summary": {
+        "simple_image_statistics": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7488888888888889,
+            "test_balanced_accuracy": 0.7488888888888888,
+            "selected_C": 100.0
+          }
+        },
+        "raw_pixel_linear": {
+          "color": {
+            "test_accuracy": 1.0,
+            "test_balanced_accuracy": 1.0,
+            "selected_C": 0.01
+          },
+          "shape": {
+            "test_accuracy": 0.7677777777777778,
+            "test_balanced_accuracy": 0.7677777777777778,
+            "selected_C": 0.01
+          }
+        }
+      }
+    }
+  ]
+}

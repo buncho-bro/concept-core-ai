@@ -1,0 +1,23 @@
+{
+  "master_seed": 1001,
+  "run_id": "exp001-seed-1001-attempt-01",
+  "directory": "runs/exp001-seed-1001-attempt-01",
+  "execution_status": "VALID",
+  "evaluation_flags": [],
+  "complete": true,
+  "reason": null,
+  "exit_code": 0,
+  "git_commit": "e9791b236e2c2618ed77e031e667c58b24e76e01",
+  "numpy_version": "2.3.5",
+  "formal": true,
+  "seeds": {
+    "master_seed": 1001,
+    "generation_seed": 1868740972,
+    "split_seed": 2343864617,
+    "model_seed": 175629694,
+    "loader_seed": 3608716037,
+    "probe_seed": 872121090,
+    "analysis_seed": 3362619837
+  },
+  "integrity_valid": true
+}
