@@ -1855,3 +1855,357 @@ Experiment 001で認める結論は、
 > 概念核候補となり得る再現可能な規則的潜在構造が形成されたか
 
 までとする。
+
+# DEC-NB-v2-01 — Run and Evaluation Failure Semantics
+
+Status: APPROVED
+
+Experiment 001では、runそのものの実行状態と、解析結果の完全性を分離して扱う。
+
+---
+
+## Run execution status
+
+各正式runは、以下のいずれかの実行状態を持つ。
+
+```text
+VALID
+INVALID
+EXPERIMENTAL_FAILURE
+```
+
+### VALID
+
+仕様どおり実行され、Autoencoder学習および必要な解析へ進めるrun。
+
+### INVALID
+
+技術的理由により科学的結果として使用できないrun。
+
+例:
+
+- 実装bug
+- spec違反
+- label leakage
+- ファイル破損
+- 実行中断
+- hardware / environment障害
+- VERIFY失敗
+
+INVALID runは科学的な5-run集約へ含めない。
+
+### EXPERIMENTAL_FAILURE
+
+仕様どおり実行されたが、実験そのものが成立しなかったrun。
+
+例:
+
+- loss発散
+- NaN
+- Autoencoder学習失敗
+- 学習結果により主要評価指標を取得できない
+
+EXPERIMENTAL_FAILUREは削除せず、科学的結果として記録する。
+
+---
+
+## Evaluation flags
+
+runには必要に応じて以下の解析flagを付与できる。
+
+```text
+PROBE_FAILED
+DISTANCE_FAILED
+BOOTSTRAP_CI_FAILED
+PIXEL_BASELINE_FAILED
+```
+
+複数flagを同時に持つことを許可する。
+
+---
+
+## PROBE_FAILED
+
+colorまたはshapeについて、すべてのC候補が非収束するなどの理由により、正式なprobe指標を取得できない場合に付与する。
+
+SUCCESS判定に必要なprobe指標が取得できないため、Experiment-levelでの完全なSUCCESS / NO_EVIDENCE判定はできない。
+
+---
+
+## DISTANCE_FAILED
+
+distance contrastそのものを正常に計算できない場合に付与する。
+
+SUCCESS判定に必要な距離指標が取得できないため、Experiment-levelでの完全なSUCCESS / NO_EVIDENCE判定はできない。
+
+---
+
+## BOOTSTRAP_CI_FAILED
+
+bootstrapの有効iteration数が950未満などの理由で、95% CIを正常に算出できない場合に付与する。
+
+Bootstrap CIはExperiment 001のSUCCESS条件そのものには使用しない。
+
+したがって、
+
+```text
+BOOTSTRAP_CI_FAILED
+```
+
+だけではSUCCESS / INCONCLUSIVE / NO_EVIDENCE判定を妨げない。
+
+Experiment-level reportへ、
+
+```text
+DISTANCE_CI_INCOMPLETE
+```
+
+として明示する。
+
+---
+
+## PIXEL_BASELINE_FAILED
+
+Pixel baseline classifierがすべて非収束するなどの理由でcontrol評価を完了できない場合に付与する。
+
+Pixel baselineはExperiment 001のSUCCESS条件には使用しない。
+
+したがって、
+
+```text
+PIXEL_BASELINE_FAILED
+```
+
+だけではSUCCESS / INCONCLUSIVE / NO_EVIDENCE判定を妨げない。
+
+Experiment-level reportへ、
+
+```text
+CONTROL_INCOMPLETE
+```
+
+として明示する。
+
+---
+
+## NOT_EVALUATED
+
+正式5 master seedについて、
+
+```text
+同一git commit
+AND
+non-INVALID run
+```
+
+が5件すべて揃っていない場合、
+
+```text
+NOT_EVALUATED
+```
+
+とする。
+
+NOT_EVALUATEDは科学的結論ではなく、Experiment-levelの管理状態である。
+
+INVALID runが1件でも正式集合に残っている場合、SUCCESS / INCONCLUSIVE / NO_EVIDENCEを出してはならない。
+
+---
+
+## INCONCLUSIVE
+
+正式5 seedすべてについて同一commitのnon-INVALID runが存在するが、
+
+- EXPERIMENTAL_FAILURE
+- PROBE_FAILED
+- DISTANCE_FAILED
+
+のいずれかにより、SUCCESS判定に必要な5 seed分のprobeまたはdistance指標が完全に揃わない場合、
+
+```text
+INCONCLUSIVE
+```
+
+とする。
+
+---
+
+## SUCCESS / NO_EVIDENCE eligibility
+
+SUCCESSまたはNO_EVIDENCEを判定できるのは、
+
+```text
+正式5 seedすべてがnon-INVALID
+AND
+5 seedすべてについて必要なprobe指標が存在
+AND
+5 seedすべてについて必要なdistance指標が存在
+```
+
+する場合のみとする。
+
+BOOTSTRAP_CI_FAILEDおよびPIXEL_BASELINE_FAILEDのみでは、このeligibilityを失わない。
+
+---
+
+# DEC-NB-v2-02 — Bootstrap Deterministic Numerical Convention
+
+Status: APPROVED
+
+Experiment 001のbootstrap解析について、同一入力・同一`analysis_seed`から同一結果を再現するため、乱数生成およびpercentile算出規約を固定する。
+
+---
+
+## Random number generator
+
+Bootstrap resamplingには、
+
+```text
+PCG64
+```
+
+を使用する。
+
+RNG stateは、
+
+```text
+analysis_seed
+```
+
+から初期化する。
+
+1000 bootstrap iteration全体で1つの連続したPCG64 random streamを使用する。
+
+iterationごとに再seedしてはならない。
+
+---
+
+## Bootstrap sampling
+
+各iterationについて、Test sample indexを表す整数を900個独立に生成する。
+
+```text
+low: 0
+high: 900
+size: 900
+replacement: true
+```
+
+すなわち、
+
+```text
+index ∈ {0,1,...,899}
+```
+
+から一様に900回復元抽出する。
+
+Test sampleのindex順序は、解析入力として保存された決定的sample順序に対応させる。
+
+---
+
+## Bootstrap iterations
+
+```text
+iterations: 1000
+```
+
+とする。
+
+RNG streamはiteration間で連続させる。
+
+---
+
+## Percentile CI
+
+有効なbootstrap meanを昇順に並べ、
+
+```text
+y[0] <= y[1] <= ... <= y[n-1]
+```
+
+とする。
+
+quantile `q` について、
+
+```text
+h = (n - 1) * q
+i = floor(h)
+f = h - i
+```
+
+を定義する。
+
+`i < n - 1` の場合、
+
+```text
+Q(q)
+=
+(1 - f) * y[i]
++
+f * y[i + 1]
+```
+
+とする。
+
+`i = n - 1` の場合、
+
+```text
+Q(q) = y[n - 1]
+```
+
+とする。
+
+これはlinear interpolationによるquantile定義である。
+
+---
+
+## 95% Confidence Interval
+
+```text
+lower = Q(0.025)
+upper = Q(0.975)
+```
+
+とする。
+
+---
+
+## Missing iterations
+
+対象カテゴリに有効pairが存在しないiterationはmissingとして除外する。
+
+有効iteration数を `n` とする。
+
+```text
+n >= 950
+```
+
+の場合のみCIを有効とする。
+
+```text
+n < 950
+```
+
+の場合、
+
+```text
+BOOTSTRAP_CI_FAILED
+```
+
+とする。
+
+---
+
+## Reproducibility requirement
+
+以下が同一である場合、
+
+```text
+Test latent
+Test sample order
+metadata
+Train standardization statistics
+analysis_seed
+```
+
+bootstrap sample index列および最終CIが同一になることを要求する。
