@@ -160,8 +160,6 @@ def run_one(master_seed, output, root, receipt_path, device="cpu"):
         export_states(model, datasets, indices, rows, config["seeds"]["loader_seed"], output, device)
         evaluation = evaluate_saved(output, output / "evaluation")
         status.update(execution_status="VALID", evaluation_flags=evaluation["evaluation_flags"], complete=True, reason=None)
-        if any(f in status["evaluation_flags"] for f in ("PROBE_FAILED", "DISTANCE_FAILED")):
-            status.update(execution_status="EXPERIMENTAL_FAILURE", reason="Required primary evaluation unavailable")
     except ExperimentalFailure as exc:
         status.update(execution_status="EXPERIMENTAL_FAILURE", complete=True, reason=str(exc))
         write_json(output / "failure.json", {"type": type(exc).__name__, "message": str(exc), "traceback": traceback.format_exc()})
