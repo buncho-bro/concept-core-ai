@@ -1366,6 +1366,69 @@ bootstrap_status: FAILED
 同一latent、metadata、analysis_seedから同一bootstrap結果を再現可能であること。
 
 ---
+15.7 Bootstrap RNG
+
+Bootstrap resamplingには PCG64 を使用する。
+
+RNGは analysis_seed から一度だけ初期化する。
+
+1000 iteration全体で1つの連続したrandom streamを使用し、iterationごとに再seedしてはならない。
+
+各iterationではTest sample indexについて、
+
+low: 0
+high: 900
+size: 900
+replacement: true
+
+として900件を復元抽出する。
+
+Test sample indexは、解析入力として保存された決定的sample順序に対応する。
+
+15.8 Bootstrap percentile convention
+
+有効なbootstrap meanを昇順に、
+
+y[0] <= y[1] <= ... <= y[n-1]
+
+とする。
+
+quantile q について、
+
+h = (n - 1) * q
+i = floor(h)
+f = h - i
+
+とする。
+
+i < n - 1 の場合、
+
+Q(q)
+=
+(1 - f) * y[i]
++
+f * y[i + 1]
+
+とする。
+
+i = n - 1 の場合、
+
+Q(q) = y[n - 1]
+
+とする。
+
+95% CIは、
+
+lower = Q(0.025)
+upper = Q(0.975)
+
+とする。
+
+有効iteration数が950未満の場合、
+
+BOOTSTRAP_CI_FAILED
+
+とする。
 
 # 16. Pixel Baseline
 
@@ -1696,64 +1759,177 @@ SUCCESSでも「概念核を発見した」とは結論しない。
 
 ---
 
-# 18. Run状態と失敗の扱い
+18. Run状態と評価状態
 
-## 18.1 INVALID
+18.1 Run execution status
 
-以下のような技術的失敗を `INVALID` とする。
+各正式runは、
 
-- 実装bug
-- ファイル破損
-- 実行中断
-- hardware / environment障害
-- spec違反
-- label leakage
-- VERIFY失敗
+VALID
+INVALID
+EXPERIMENTAL_FAILURE
+
+のいずれかのexecution statusを持つ。
+
+VALID
+
+仕様どおり実行され、科学的解析へ使用可能なrun。
+
+INVALID
+
+技術的理由により科学的結果として使用できないrun。
+
+例:
+
+実装bug
+
+spec違反
+
+label leakage
+
+ファイル破損
+
+実行中断
+
+hardware / environment障害
+
+VERIFY失敗
 
 INVALID runは削除しない。
 
-git commitが変化した場合、正式baselineは新しいcommitで5 seedすべてを再実行する。
-
-異なるcommitのrunを同一正式baseline集合に混在させない。
-
----
-
-## 18.2 EXPERIMENTAL_FAILURE
-
-仕様どおり正常に実行されたが、
-
-- loss発散
-- NaN
-- 再構成学習失敗
-- 評価不能となる学習上の失敗
-
-などが発生した場合、
-
-```text
 EXPERIMENTAL_FAILURE
-```
 
-として科学的結果に含める。
+仕様どおり実行されたが、
 
-runを削除したり、同一runの条件を変更して再利用してはならない。
+loss発散
 
----
+NaN
 
-## 18.3 NOT_EVALUATED
+Autoencoder学習失敗
 
-正式な有効runが5件揃っていない場合、科学的三値判定を行わない。
+主要指標取得不能
 
-管理上の状態を、
+など、実験そのものが成立しなかったrun。
 
-```text
+EXPERIMENTAL_FAILUREも削除しない。
+
+18.2 Evaluation flags
+
+必要に応じて以下をrunへ記録する。
+
+PROBE_FAILED
+DISTANCE_FAILED
+BOOTSTRAP_CI_FAILED
+PIXEL_BASELINE_FAILED
+
+複数flagを同時に持つことを許可する。
+
+18.3 Probe failure
+
+すべてのC候補が非収束するなどの理由によりSUCCESS判定に必要なprobe指標を取得できない場合、
+
+PROBE_FAILED
+
+とする。
+
+この場合、正式5 runすべてが存在していても完全なSUCCESS / NO_EVIDENCE判定は行えない。
+
+18.4 Distance failure
+
+distance contrastそのものを計算できない場合、
+
+DISTANCE_FAILED
+
+とする。
+
+この場合、完全なSUCCESS / NO_EVIDENCE判定は行えない。
+
+18.5 Bootstrap CI failure
+
+CIのみが算出不能の場合、
+
+BOOTSTRAP_CI_FAILED
+
+とする。
+
+Bootstrap CIはSUCCESS条件ではないため、distance contrast本体が正常に存在する限り科学的三値判定は継続可能とする。
+
+Experiment-level reportへ、
+
+DISTANCE_CI_INCOMPLETE
+
+を記録する。
+
+18.6 Pixel baseline failure
+
+Pixel baselineを完了できない場合、
+
+PIXEL_BASELINE_FAILED
+
+とする。
+
+Pixel baselineはSUCCESS条件ではないため、科学的三値判定は継続可能とする。
+
+Experiment-level reportへ、
+
+CONTROL_INCOMPLETE
+
+を記録する。
+
+18.7 NOT_EVALUATED
+
+正式5 master seedについて、
+
+同一git commitのnon-INVALID run
+
+が5件すべて揃っていない場合、
+
 NOT_EVALUATED
-```
 
 とする。
 
 NOT_EVALUATEDは科学的結論ではない。
 
----
+18.8 INCONCLUSIVE due to missing primary evidence
+
+正式5 seedすべてについて同一commitのnon-INVALID runが存在するが、
+
+EXPERIMENTAL_FAILURE
+
+PROBE_FAILED
+
+DISTANCE_FAILED
+
+のいずれかによりSUCCESS判定に必要な5 seed分の指標が完全に揃わない場合、
+
+INCONCLUSIVE
+
+とする。
+
+18.9 Eligibility for SUCCESS / NO_EVIDENCE
+
+SUCCESSまたはNO_EVIDENCEを判定できるのは、
+
+formal run count = 5
+
+AND
+
+all 5 runs are non-INVALID
+
+AND
+
+all 5 runs contain required probe metrics
+
+AND
+
+all 5 runs contain required distance metrics
+
+の場合のみとする。
+
+以下だけではeligibilityを失わない。
+
+BOOTSTRAP_CI_FAILED
+PIXEL_BASELINE_FAILED
 
 # 19. Run-levelとExperiment-level成果物
 
@@ -2034,35 +2210,29 @@ run単位で最終三値判定を行わない。
 
 ---
 
-# 21. Experiment-level成果物
+21.x Experiment-level aggregation precedence
 
-正式5 runを集約した成果物には最低限、
+Experiment-levelの状態判定は以下の順序で行う。
 
-- 正式run集合
-- 各runのstatus
-- probe_delta
-- distance_contrast
-- distance_delta
-- 5 seed中央値
-- 4/5条件の判定
-- SUCCESS条件判定
-- Pixel baseline要約
-- run間変動
-- 最終科学的判定
+1. 正式5 seedのnon-INVALID runが5件揃っているか
+   NO  -> NOT_EVALUATED
 
-を保存する。
+2. SUCCESS判定に必要なprobe/distance指標が
+   5 seedすべてについて存在するか
+   NO  -> INCONCLUSIVE
 
-Experiment-level reportのみが、
+3. SUCCESS条件を満たすか
+   YES -> SUCCESS
 
-```text
-SUCCESS
-INCONCLUSIVE
-NO_EVIDENCE
-```
+4. INCONCLUSIVEの正方向変化条件を満たすか
+   YES -> INCONCLUSIVE
 
-を記録する。
+5. それ以外
+   -> NO_EVIDENCE
 
----
+BOOTSTRAP_CI_FAILED および PIXEL_BASELINE_FAILED は、この判定順序を変更しない。
+
+ただしreportに該当する不完全性を明示する。
 
 # 22. 再現性
 
