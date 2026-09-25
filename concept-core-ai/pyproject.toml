@@ -17,6 +17,7 @@ verify = ["pytest==8.4.1"]
 
 [project.scripts]
 exp001 = "exp001.cli:main"
+exp002 = "exp002.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
