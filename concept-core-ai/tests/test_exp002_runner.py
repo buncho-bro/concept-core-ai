@@ -86,5 +86,5 @@ def test_verification_fingerprint_includes_exp002_sources_and_environment(tmp_pa
 
 def test_formal_run_guards_reject_test_seed_before_creating_artifacts(tmp_path):
     with pytest.raises(ValueError, match="approved master seed"):
-        runner.run_one(77, tmp_path / "forbidden", tmp_path, "none", Performance().as_dict())
+        runner.run_one(77, tmp_path / "forbidden", tmp_path, "no-baseline", "attempt")
     assert not (tmp_path / "forbidden").exists()

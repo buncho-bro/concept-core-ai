@@ -919,3 +919,19 @@ FROZEN_FOR_IMPLEMENTATION
 ```
 
 Any scientific change after approval must be documented as a new decision and, when it can affect formal results, requires a new experiment version or formal baseline.
+
+---
+
+# 39. HD-002-01 — Formal Baseline / Canonical Attempt Rule
+
+## Decision
+
+Before any formal Experiment 002 RUN, create one immutable baseline manifest after successful VERIFY and after selecting performance settings using wall-clock measurements only. The manifest binds the exact formal seeds, execution commit, implementation fingerprint, successful verification receipt identity/hash, required environment, device, all approved performance knobs, freeze provenance, and five initially empty canonical seed slots.
+
+For each seed, the first attempt registered to that baseline before scientific execution is permanently canonical, regardless of whether it becomes `VALID`, `INVALID`, or `EXPERIMENTAL_FAILURE`. A retry is a separately identified, provenance-linked, non-canonical attempt and can never replace the canonical result in formal classification.
+
+If Human decides that a canonical attempt must be replaced, create a new baseline/version with its own manifest and registrations. Preserve the predecessor baseline and record the relationship and reason. Formal aggregation resolves the five canonical attempts only from the frozen baseline registry; callers cannot select five arbitrary attempt paths.
+
+## Reason
+
+This rule prevents result-dependent attempt cherry-picking and makes the required pre-RUN performance freeze auditable. Formal Experiment 002 runs were still zero when this decision was made, so it is execution-governance clarification rather than tuning based on formal scientific results. The scientific conditions, §40 precedence, and seven-step aggregation mathematics are unchanged.

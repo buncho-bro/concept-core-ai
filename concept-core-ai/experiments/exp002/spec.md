@@ -1666,6 +1666,35 @@ Any such change requires a separately versioned experiment or new formal baselin
 
 ---
 
+# 50A. Formal Baseline and Canonical Attempt Governance
+
+Per Human Decision `HD-002-01`, a formal baseline MUST be identified by an immutable, machine-readable manifest created after successful VERIFY and wall-clock-only performance selection, and before the first formal RUN. It MUST bind:
+
+```text
+experiment and baseline/version identity
+formal master seeds 1001, 1002, 1003, 1004, 1005
+execution commit and scientific implementation fingerprint
+successful pre-RUN verification receipt identity/hash
+required environment and device identity
+frozen torch/OMP/MKL/DataLoader performance configuration
+freeze creation provenance
+predecessor and reason when this is a successor baseline
+five initially unregistered canonical seed slots
+immutable/frozen state and integrity identity
+```
+
+For each formal seed, the first attempt registered against that frozen baseline **before scientific execution begins** is its sole canonical attempt. Registration is append-only and first-registration-wins. A canonical attempt remains canonical whether its result is `VALID`, `INVALID`, or `EXPERIMENTAL_FAILURE`; it MUST NOT be deleted, overwritten, or replaced after results are available.
+
+A retry MUST have a new attempt ID, preserve the baseline and seed identity, identify the original canonical attempt as its parent, record retry provenance, and use separate artifacts. A retry is non-canonical and MUST NOT change the formal five-run set or any Step 1–7 classification. In particular, a `VALID` retry does not replace an `INVALID` or `EXPERIMENTAL_FAILURE` canonical attempt.
+
+Changing a canonical attempt requires a new baseline/version with its own frozen manifest. The predecessor identity and reason MUST be recorded; the old baseline and all attempts remain auditable. A new baseline MUST independently register its canonical attempts and MUST NOT silently inherit result-bearing attempts from its predecessor.
+
+Formal aggregation MUST accept a baseline identity, resolve exactly seeds 1001–1005 from its canonical registration records, validate manifest/registration/artifact integrity and commit, implementation, verification, environment, device, and performance consistency, then apply §40 unchanged. It MUST report the exact canonical attempt IDs and visible retry audit. Caller-selected attempt paths MUST NOT define or claim a formal Experiment 002 classification.
+
+The manifest's performance configuration is the sole formal runner input for `torch_threads`, `torch_interop_threads`, `omp_threads`, `mkl_threads`, `num_workers`, and `persistent_workers`. The formal runner MUST NOT accept a per-run replacement performance JSON. Any mismatch or manifest mutation after freeze invalidates formal execution or aggregation.
+
+---
+
 # 51. Formal Scientific Question
 
 Experiment 002 asks:

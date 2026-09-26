@@ -14,12 +14,26 @@ This runs the complete Exp001 and Exp002 test suite. It creates a UTF-8 pytest l
 
 After review, commit the implementation and verify it in the intended runtime environment. The receipt must match the current implementation and environment. A different checkout with different file line endings needs its own verification receipt. Keep subsequent execution/verification outputs outside tracked source paths (the existing `runs/` and `.verify-tmp/` directories are ignored).
 
-## Separate future RUN stage
+## Separate future benchmark, freeze, and RUN stages
 
-The formal runner requires a clean commit, matching successful Exp002 verification, pinned dependency versions, an approved master seed, and an explicit performance configuration file. It never automatically launches all five seeds.
+After VERIFY, use non-formal wall-clock benchmarks only to select performance settings. Normalize the selected settings without running scientific code:
 
 ```text
-python -m exp002 run-one --mode RUN --master-seed <approved-seed> --verification <receipt.json> --performance <frozen-performance.json> --output <new-attempt-directory> --device cpu
+python -m exp002 prepare-performance --performance <selected-performance.json> --output <normalized-performance.json>
+```
+
+Then create the immutable baseline manifest. This operation requires a clean commit, matching successful Exp002 verification, pinned dependencies, and the required runtime environment:
+
+```text
+python -m exp002 freeze-baseline --baseline <new-baseline-directory> --baseline-id <id> --baseline-version <version> --verification <receipt.json> --performance <normalized-performance.json> --device cpu
+```
+
+For a Human-authorized replacement baseline, also provide `--predecessor <old-baseline-directory> --reason <reason>`. The new baseline records that provenance but does not inherit attempts.
+
+Only after freeze may a formal attempt be registered and run:
+
+```text
+python -m exp002 run-one --mode RUN --baseline <baseline-directory> --master-seed <approved-seed> --attempt-id <new-id> --output <new-attempt-directory>
 ```
 
 The performance JSON accepts `torch_threads`, `torch_interop_threads`, `omp_threads`, `mkl_threads`, `num_workers`, and `persistent_workers`. Counts are validated and the fully resolved settings are recorded. For example, the implementation's conservative **test defaults**, not a selected formal configuration, are:
@@ -28,9 +42,13 @@ The performance JSON accepts `torch_threads`, `torch_interop_threads`, `omp_thre
 {"torch_threads": 1, "torch_interop_threads": 1, "omp_threads": 1, "mkl_threads": 1, "num_workers": 0, "persistent_workers": false}
 ```
 
-Select any final machine-specific settings before RUN using non-formal wall-clock benchmarking only, then freeze them across all five attempts. Launch a fresh process with the corresponding `OMP_NUM_THREADS` and `MKL_NUM_THREADS` environment variables set before Python starts. The runner also applies/records those values and the PyTorch thread counts; inherited probe/PCA computation retains its explicit single-thread BLAS context. No batch-size, epoch, optimizer, architecture, loss, or mathematical analysis controls are exposed as performance options.
+Select final machine-specific settings before RUN using non-formal wall-clock benchmarking only. The runner reads them only from the frozen manifest; it has no per-run performance override. Launch a fresh process with the corresponding `OMP_NUM_THREADS` and `MKL_NUM_THREADS` environment variables set before Python starts. The runner applies and records the frozen values. No batch-size, epoch, optimizer, architecture, loss, or mathematical analysis controls are exposed as performance options.
 
-The runner creates an exclusive attempt directory and preserves partial results on failure. Technical/interrupted failures remain `INVALID`; numerical training failures use `EXPERIMENTAL_FAILURE`. Successfully completed training/evaluation remains `VALID` with any evaluation flags intact.
+The runner first creates an exclusive canonical registration for that seed, then begins scientific execution. Technical/interrupted failures remain `INVALID`; numerical training failures use `EXPERIMENTAL_FAILURE`; neither can be replaced in the baseline. A diagnostic retry uses a separate identity and output:
+
+```text
+python -m exp002 run-one --mode RUN --baseline <baseline-directory> --master-seed <seed> --attempt-id <retry-id> --retry-of <canonical-id> --retry-reason <reason> --output <new-retry-directory>
+```
 
 ## Artifacts and reanalysis
 
@@ -50,10 +68,10 @@ The Exp001 four-category integer distance code is reused: 0 = same color/same sh
 
 ```text
 python -m exp002 reanalyze <attempt-directory> --output <new-evaluation-directory>
-python -m exp002 aggregate <explicit-attempt-paths...> --output <new-aggregate-directory>
+python -m exp002 aggregate --baseline <baseline-directory> --output <new-aggregate-directory>
 ```
 
-Reanalysis checks integrity and requires the original environment and implementation. It evaluates saved latents/images without re-encoding or refitting the AE. Aggregation checks artifact integrity, formal-source configuration, exact seed set, completion/status, same commit and required environment/performance, then applies spec §40 in order. It recomputes held-out accuracy from confusion matrices and cross contrasts from recorded category means. It never chooses favorable reruns.
+Reanalysis checks integrity and requires the original environment and implementation. It evaluates saved latents/images without re-encoding or refitting the AE. Formal aggregation accepts no attempt paths: it resolves exactly one canonical registration for each formal seed from the baseline, checks frozen provenance and artifact integrity, reports the exact canonical IDs plus retries, and then applies spec §40 in order. It recomputes held-out accuracy from confusion matrices and cross contrasts from recorded category means.
 
 ## Implementation choices within the approved freedom
 

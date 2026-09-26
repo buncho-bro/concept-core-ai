@@ -11,8 +11,9 @@ from .config import ACTIVE_SPLITS, COLORS, SHAPES, FORMAL_SEEDS, SOURCE_COMMIT, 
 from .data import generate_metadata, assign_splits, generate_images, split_indices, validate_splits, SplitDataset
 from .training import train, extract_latent, make_loader
 from .performance import Performance
-from .artifacts import (new_directory, write_json, read_json, save_npz, inventory, environment, clean_commit,
-                        implementation_fingerprint, check_integrity, require_verification, require_versions)
+from .artifacts import (new_directory, write_json, read_json, save_npz, inventory, environment,
+                        implementation_fingerprint, check_integrity)
+from .baseline import register_attempt, validate_runtime
 from .reconstruction import reconstruction_metrics, sanity_ratios
 from .evaluation import evaluate_classifier, pixel_features
 from .distance import analyze_distance, bootstrap_draws
@@ -173,21 +174,25 @@ def _execute_attempt(config, output, receipt, performance):
     return status
 
 
-def run_one(master_seed, output, root, receipt_path, performance, device="cpu"):
+def run_one(master_seed, output, root, baseline, attempt_id, retry_of=None, retry_reason=None):
     if master_seed not in FORMAL_SEEDS:
         raise ValueError("Formal execution requires an approved master seed")
-    runtime = require_versions()
-    commit = clean_commit(root)
-    receipt = require_verification(root, receipt_path)
-    perf = Performance(**performance)
+    manifest = validate_runtime(root, baseline)
+    perf = Performance(**manifest["frozen_performance"])
+    registration = register_attempt(baseline, master_seed, attempt_id, output, retry_of, retry_reason)
     perf.apply()
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     configure_precision()
     config = {**configuration(), "run_id": Path(output).name, "formal": True, "master_seed": master_seed,
-        "seeds": seeds_for(master_seed), "git_commit": commit, "canonical_source_commit": SOURCE_COMMIT,
-        "environment": runtime, "performance": perf.as_dict(), "device": device,
-        "device_class": torch.device(device).type, "implementation": implementation_fingerprint(root)}
-    return _execute_attempt(config, output, receipt, perf)
+        "seeds": seeds_for(master_seed), "git_commit": manifest["execution_commit"],
+        "canonical_source_commit": SOURCE_COMMIT, "environment": manifest["required_environment"],
+        "performance": perf.as_dict(), "device": manifest["device"], "device_class": manifest["device_class"],
+        "implementation": manifest["implementation"], "baseline_id": manifest["baseline_id"],
+        "baseline_version": manifest["baseline_version"], "baseline_manifest_hash": manifest["manifest_hash"],
+        "verification_receipt_sha256": manifest["verification"]["sha256"], "attempt_id": attempt_id,
+        "attempt_kind": registration["attempt_kind"],
+        "parent_canonical_attempt_id": registration["parent_canonical_attempt_id"]}
+    return _execute_attempt(config, output, manifest["verification"]["receipt"], perf)
 
 
 def reanalyze(run, output, root):

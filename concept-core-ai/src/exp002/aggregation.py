@@ -6,6 +6,7 @@ import numpy as np
 from .config import FORMAL_SEEDS, SOURCE_COMMIT, configuration, seeds_for
 from .performance import Performance
 from .artifacts import check_integrity, read_json, write_json, new_directory, inventory
+from .baseline import canonical_registrations, retry_registrations
 from .reconstruction import sanity_ratios
 
 
@@ -114,7 +115,10 @@ def record_from_run(path):
         check_integrity(path)
         config, status = read_json(path / "configuration.json"), read_json(path / "status.json")
         record.update({k: config.get(k) for k in ("experiment_id", "master_seed", "git_commit", "formal", "seeds",
-                                                "run_id", "environment", "performance", "device_class")})
+                                                "run_id", "environment", "performance", "device", "device_class",
+                                                "implementation", "baseline_id", "baseline_version",
+                                                "baseline_manifest_hash", "verification_receipt_sha256", "attempt_id",
+                                                "attempt_kind", "parent_canonical_attempt_id")})
         record.update(status)
         if any(config.get(k) != v for k, v in configuration().items()) or config.get("canonical_source_commit") != SOURCE_COMMIT:
             raise ValueError("Scientific configuration/source mismatch")
@@ -157,14 +161,50 @@ def record_from_run(path):
     return record
 
 
-def aggregate_paths(paths, output):
-    records = [record_from_run(p) for p in paths]
+def _validate_canonical_record(record, registration, manifest):
+    expected = {
+        "experiment_id": "exp002", "formal": True, "master_seed": registration["master_seed"],
+        "git_commit": manifest["execution_commit"], "environment": manifest["required_environment"],
+        "performance": manifest["frozen_performance"], "device": manifest["device"],
+        "device_class": manifest["device_class"], "implementation": manifest["implementation"],
+        "baseline_id": manifest["baseline_id"], "baseline_version": manifest["baseline_version"],
+        "baseline_manifest_hash": manifest["manifest_hash"],
+        "verification_receipt_sha256": manifest["verification"]["sha256"],
+        "attempt_id": registration["attempt_id"], "attempt_kind": "canonical",
+        "parent_canonical_attempt_id": None,
+    }
+    mismatches = [name for name, value in expected.items() if record.get(name) != value]
+    if Path(record.get("path", "")).resolve() != Path(registration["output"]).resolve():
+        mismatches.append("registered_output")
+    if mismatches:
+        record.update(execution_status="INVALID", complete=False,
+                      integrity_error="Frozen baseline mismatch: " + ", ".join(mismatches))
+    record["canonical_attempt_id"] = registration["attempt_id"]
+    return record
+
+
+def aggregate_baseline(baseline, output):
+    """The only formal aggregation entry point: caller cannot choose attempt paths."""
+    manifest, registrations = canonical_registrations(baseline, require_complete=False)
+    records = [_validate_canonical_record(record_from_run(r["output"]), r, manifest) for r in registrations]
     result = aggregate_records(records)
+    retries = []
+    for registration in retry_registrations(baseline):
+        retry = record_from_run(registration["output"])
+        retries.append({"registration": registration, "execution_status": retry.get("execution_status"),
+                        "complete": retry.get("complete"), "integrity_error": retry.get("integrity_error")})
+    result.update(baseline_id=manifest["baseline_id"], baseline_version=manifest["baseline_version"],
+                  baseline_manifest_hash=manifest["manifest_hash"],
+                  canonical_attempt_ids=[r["attempt_id"] for r in registrations], retries=retries)
     output = new_directory(output)
-    write_json(output / "baseline_manifest.json", {"experiment_id": "exp002", "formal_master_seeds": list(FORMAL_SEEDS),
-                                                  "git_commit": result.get("git_commit"), "runs": records})
+    write_json(output / "baseline_manifest.json", manifest)
+    write_json(output / "classification_inputs.json", {"canonical_registrations": registrations,
+                                                        "canonical_attempt_ids": result["canonical_attempt_ids"],
+                                                        "retry_audit": retries})
     write_json(output / "aggregate_metrics.json", result)
     (output / "report.md").write_text("# Experiment 002 aggregate\n\n" + result["classification"] +
-        "\n\nWarnings: " + ", ".join(result["warnings"]) + "\n\nSee aggregate_metrics.json for observations, metrics and gate.\n", encoding="utf-8")
+        "\n\nCanonical attempts: " + ", ".join(result["canonical_attempt_ids"]) +
+        "\n\nWarnings: " + ", ".join(result["warnings"]) +
+        "\n\nSee aggregate_metrics.json and classification_inputs.json for the audited inputs.\n", encoding="utf-8")
     write_json(output / "integrity.json", inventory(output))
     return result
