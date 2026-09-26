@@ -13,7 +13,7 @@ from .training import train, extract_latent, make_loader
 from .performance import Performance
 from .artifacts import (new_directory, write_json, read_json, save_npz, inventory, environment,
                         implementation_fingerprint, check_integrity)
-from .baseline import register_attempt, validate_runtime
+from .baseline import registered_attempt, validate_runtime
 from .reconstruction import reconstruction_metrics, sanity_ratios
 from .evaluation import evaluate_classifier, pixel_features
 from .distance import analyze_distance, bootstrap_draws
@@ -175,12 +175,22 @@ def _execute_attempt(config, output, receipt, performance):
 
 
 def run_one(master_seed, output, root, baseline, attempt_id, retry_of=None, retry_reason=None):
+    """Reject unsafe in-process formal execution; use the CLI launcher/worker boundary."""
+    if master_seed not in FORMAL_SEEDS:
+        raise ValueError("Formal execution requires an approved master seed")
+    raise ValueError("Formal execution requires the fresh-process CLI launcher")
+
+
+def execute_registered_attempt(master_seed, output, root, baseline, attempt_id, process_start_provenance):
+    """Worker-only execution of the attempt already registered by the launcher."""
     if master_seed not in FORMAL_SEEDS:
         raise ValueError("Formal execution requires an approved master seed")
     manifest = validate_runtime(root, baseline)
+    registered_manifest, registration = registered_attempt(baseline, master_seed, attempt_id, output)
+    if registered_manifest["manifest_hash"] != manifest["manifest_hash"]:
+        raise ValueError("Registered attempt manifest changed before worker execution")
     perf = Performance(**manifest["frozen_performance"])
-    registration = register_attempt(baseline, master_seed, attempt_id, output, retry_of, retry_reason)
-    perf.apply()
+    applied_torch = perf.apply_formal(process_start_provenance)
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     configure_precision()
     config = {**configuration(), "run_id": Path(output).name, "formal": True, "master_seed": master_seed,
@@ -191,7 +201,11 @@ def run_one(master_seed, output, root, baseline, attempt_id, retry_of=None, retr
         "baseline_version": manifest["baseline_version"], "baseline_manifest_hash": manifest["manifest_hash"],
         "verification_receipt_sha256": manifest["verification"]["sha256"], "attempt_id": attempt_id,
         "attempt_kind": registration["attempt_kind"],
-        "parent_canonical_attempt_id": registration["parent_canonical_attempt_id"]}
+        "parent_canonical_attempt_id": registration["parent_canonical_attempt_id"],
+        "performance_runtime": {"process_start": process_start_provenance,
+                                "applied_torch": applied_torch,
+                                "dataloader": {"num_workers": perf.num_workers,
+                                               "persistent_workers": perf.persistent_workers}}}
     return _execute_attempt(config, output, manifest["verification"]["receipt"], perf)
 
 

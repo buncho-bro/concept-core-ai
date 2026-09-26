@@ -1,10 +1,11 @@
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from exp001.artifacts import read_json, write_json
-from exp002 import aggregation, baseline, runner
+from exp002 import aggregation, baseline
 from exp002.config import FORMAL_SEEDS, seeds_for
 from exp002.performance import Performance
 
@@ -53,9 +54,21 @@ def scientific_record(seed, *, positive=True, status="VALID"):
 
 
 def bind_record(record, registration, manifest):
+    performance = manifest["frozen_performance"]
     record.update(path=registration["output"], attempt_id=registration["attempt_id"],
                   baseline_manifest_hash=manifest["manifest_hash"],
-                  verification_receipt_sha256=manifest["verification"]["sha256"])
+                  verification_receipt_sha256=manifest["verification"]["sha256"],
+                  performance_runtime={
+                      "process_start": {"required": {"OMP_NUM_THREADS": str(performance["omp_threads"]),
+                                                       "MKL_NUM_THREADS": str(performance["mkl_threads"])},
+                                        "observed": {"OMP_NUM_THREADS": str(performance["omp_threads"]),
+                                                     "MKL_NUM_THREADS": str(performance["mkl_threads"])},
+                                        "validated_before_scientific_imports": True,
+                                        "native_modules_loaded_before_guard": []},
+                      "applied_torch": {"torch_threads": performance["torch_threads"],
+                                        "torch_interop_threads": performance["torch_interop_threads"]},
+                      "dataloader": {"num_workers": performance["num_workers"],
+                                     "persistent_workers": performance["persistent_workers"]}})
     return record
 
 
@@ -100,17 +113,22 @@ def test_frozen_performance_cannot_be_changed(frozen, knob, value):
         baseline.load_manifest(path)
 
 
-def test_new_baseline_preserves_predecessor_without_inheriting_attempts(frozen, tmp_path):
+def test_new_baseline_preserves_predecessor_without_inheriting_attempts(frozen, tmp_path, monkeypatch):
     root, v1, old, receipt = frozen
     baseline.register_attempt(v1, 1001, "v1-first", tmp_path / "v1-run")
     v2 = tmp_path / "baseline-v2"
+    authorization = {"authorization_id": "AUTH-fixture", "source_path": "fixture.json",
+                     "source_commit": "approved", "git_blob": "blob", "sha256": "a" * 64,
+                     "record": {"fixture": True}}
+    monkeypatch.setattr(baseline, "validate_successor_authorization", lambda *args: deepcopy(authorization))
     new = baseline.freeze_baseline(root, v2, "baseline", "v2", receipt, Performance().as_dict(),
-                                   predecessor=v1, reason="Human-authorized restart")
+                                   predecessor=v1, reason="Human-authorized restart", authorization="fixture.json")
     assert baseline.load_manifest(v1) == old
     assert new["manifest_hash"] != old["manifest_hash"]
     assert new["predecessor"] == {"baseline_id": "baseline", "baseline_version": "v1",
                                   "manifest_hash": old["manifest_hash"]}
     assert new["new_baseline_reason"] == "Human-authorized restart"
+    assert new["successor_authorization"] == authorization
     assert list((v2 / "canonical").glob("*.json")) == []
 
 
@@ -154,22 +172,30 @@ def test_valid_retry_does_not_replace_failed_canonical(frozen, tmp_path, monkeyp
     assert result["retries"][0]["execution_status"] == "VALID"
 
 
-def test_runner_requires_preexisting_frozen_manifest_and_registers_before_execution(frozen, tmp_path, monkeypatch):
+def test_launcher_registers_once_before_fresh_worker_boundary(frozen, tmp_path, monkeypatch):
+    from exp002 import cli
     root, path, manifest, _ = frozen
     observed = {}
-    def fake_execute(config, output, receipt, performance):
+    def fake_subprocess(command, cwd, env, check):
         observed["registration"] = read_json(path / "canonical" / "1001.json")
-        observed["config"] = config
-        return {"execution_status": "VALID", "complete": True}
-    monkeypatch.setattr(runner, "_execute_attempt", fake_execute)
-    monkeypatch.setattr(runner.Performance, "apply", lambda self: None)
-    monkeypatch.setattr(runner, "configure_precision", lambda: None)
-    runner.run_one(1001, tmp_path / "run", root, path, "first")
+        observed.update(command=command, environment=env)
+        return SimpleNamespace(returncode=73)
+    monkeypatch.setattr(cli.subprocess, "run", fake_subprocess)
+    args = SimpleNamespace(baseline=str(path), master_seed=1001, attempt_id="first",
+                           output=str(tmp_path / "run"), retry_of=None, retry_reason=None)
+    assert cli.launch_formal(args, root) == 73
     assert observed["registration"]["attempt_id"] == "first"
-    assert observed["config"]["performance"] == manifest["frozen_performance"]
-    assert observed["config"]["baseline_manifest_hash"] == manifest["manifest_hash"]
+    assert observed["command"][2] == "exp002.formal_worker"
+    assert observed["environment"]["OMP_NUM_THREADS"] == str(manifest["frozen_performance"]["omp_threads"])
+    assert observed["environment"]["MKL_NUM_THREADS"] == str(manifest["frozen_performance"]["mkl_threads"])
+    assert list((path / "canonical").glob("1001.json"))
+    assert not (tmp_path / "run").exists()
     with pytest.raises((FileNotFoundError, ValueError)):
-        runner.run_one(1002, tmp_path / "no-run", root, tmp_path / "missing", "never")
+        args.baseline = str(tmp_path / "missing")
+        args.master_seed = 1002
+        args.attempt_id = "never"
+        args.output = str(tmp_path / "no-run")
+        cli.launch_formal(args, root)
     assert not (tmp_path / "no-run").exists()
 
 
@@ -181,6 +207,42 @@ def test_incomplete_canonical_set_is_step_one_not_evaluated(frozen, tmp_path, mo
     result = aggregation.aggregate_baseline(path, tmp_path / "aggregate-incomplete")
     assert result["classification"] == "NOT_EVALUATED" and result["step"] == 1
     assert result["canonical_attempt_ids"] == ["only-one"]
+
+
+def test_registered_worker_records_enforced_performance_truth(frozen, tmp_path, monkeypatch):
+    from exp002 import runner
+    root, path, manifest, _ = frozen
+    baseline.register_attempt(path, 1001, "first", tmp_path / "run")
+    process = {"required": {"OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"},
+               "observed": {"OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"},
+               "validated_before_scientific_imports": True,
+               "native_modules_loaded_before_guard": []}
+    observed = {}
+    monkeypatch.setattr(runner, "validate_runtime", lambda root, baseline: manifest)
+    monkeypatch.setattr(runner.Performance, "apply_formal",
+                        lambda self, provenance: {"torch_threads": self.torch_threads,
+                                                  "torch_interop_threads": self.torch_interop_threads})
+    monkeypatch.setattr(runner, "configure_precision", lambda: None)
+    monkeypatch.setattr(runner, "_execute_attempt",
+                        lambda config, output, receipt, performance: observed.update(config=config) or
+                        {"execution_status": "VALID", "complete": True})
+    runner.execute_registered_attempt(1001, tmp_path / "run", root, path, "first", process)
+    assert observed["config"]["performance_runtime"] == {
+        "process_start": process,
+        "applied_torch": {"torch_threads": 1, "torch_interop_threads": 1},
+        "dataloader": {"num_workers": 0, "persistent_workers": False}}
+
+
+def test_formal_aggregation_rejects_untruthful_runtime_performance(frozen, tmp_path, monkeypatch):
+    _, path, manifest, _ = frozen
+    registrations = register_all(path, tmp_path)
+    records = {r["output"]: bind_record(scientific_record(r["master_seed"]), r, manifest)
+               for r in registrations}
+    records[registrations[0]["output"]]["performance_runtime"]["process_start"]["observed"]["OMP_NUM_THREADS"] = "99"
+    monkeypatch.setattr(aggregation, "record_from_run", lambda p: deepcopy(records[str(Path(p).resolve())]))
+    result = aggregation.aggregate_baseline(path, tmp_path / "aggregate-runtime-mismatch")
+    assert result["classification"] == "NOT_EVALUATED" and result["step"] == 1
+    assert "performance_runtime" in result["runs"][0]["integrity_error"]
 
 
 def test_all_canonical_attempts_must_match_frozen_performance(frozen, tmp_path, monkeypatch):
