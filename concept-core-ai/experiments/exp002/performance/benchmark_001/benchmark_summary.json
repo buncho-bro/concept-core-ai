@@ -1,0 +1,31 @@
+{
+  "status": "PERF_BENCHMARK_COMPLETED",
+  "comparison_basis": "wall-clock only",
+  "primary_statistic": "median wall-clock seconds",
+  "completed_candidate_count": 12,
+  "environment_infeasible_candidate_count": 1,
+  "valid_timing_observation_count": 36,
+  "summaries": [
+    {"candidate_id":"s1_t8_i1","stage":1,"torch_threads":8,"torch_interop_threads":1,"omp_threads":8,"mkl_threads":8,"num_workers":0,"persistent_workers":false,"timings":[1.8053283230001398,1.8892372219997924,2.063149925000289],"median":1.8892372219997924,"min":1.8053283230001398,"max":2.063149925000289},
+    {"candidate_id":"s3_t8_o4_m8","stage":3,"torch_threads":8,"torch_interop_threads":1,"omp_threads":4,"mkl_threads":8,"num_workers":0,"persistent_workers":false,"timings":[2.110535748000075,1.935771012999794,1.9863476109994735],"median":1.9863476109994735,"min":1.935771012999794,"max":2.110535748000075},
+    {"candidate_id":"s3_t8_o4_m4","stage":3,"torch_threads":8,"torch_interop_threads":1,"omp_threads":4,"mkl_threads":4,"num_workers":0,"persistent_workers":false,"timings":[2.218546136000441,2.326761694999732,2.1312545580003643],"median":2.218546136000441,"min":2.1312545580003643,"max":2.326761694999732},
+    {"candidate_id":"s2_t6_i1","stage":2,"torch_threads":6,"torch_interop_threads":1,"omp_threads":6,"mkl_threads":6,"num_workers":0,"persistent_workers":false,"timings":[2.1693426729998464,2.2821175540002514,2.5597091259996887],"median":2.2821175540002514,"min":2.1693426729998464,"max":2.5597091259996887},
+    {"candidate_id":"s2_t8_i2","stage":2,"torch_threads":8,"torch_interop_threads":2,"omp_threads":8,"mkl_threads":8,"num_workers":0,"persistent_workers":false,"timings":[2.3545994639998753,2.309084874000291,2.2298924589995295],"median":2.309084874000291,"min":2.2298924589995295,"max":2.3545994639998753},
+    {"candidate_id":"s3_t8_o8_m4","stage":3,"torch_threads":8,"torch_interop_threads":1,"omp_threads":8,"mkl_threads":4,"num_workers":0,"persistent_workers":false,"timings":[2.2811032130002786,2.397314087000268,2.372646302999783],"median":2.372646302999783,"min":2.2811032130002786,"max":2.397314087000268},
+    {"candidate_id":"s2_t7_i1","stage":2,"torch_threads":7,"torch_interop_threads":1,"omp_threads":7,"mkl_threads":7,"num_workers":0,"persistent_workers":false,"timings":[2.278436696999961,2.464868906999982,2.4721899850001137],"median":2.464868906999982,"min":2.278436696999961,"max":2.4721899850001137},
+    {"candidate_id":"s2_t9_i1","stage":2,"torch_threads":9,"torch_interop_threads":1,"omp_threads":9,"mkl_threads":9,"num_workers":0,"persistent_workers":false,"timings":[2.623732259999997,2.629193392999696,2.486233460999756],"median":2.623732259999997,"min":2.486233460999756,"max":2.629193392999696},
+    {"candidate_id":"s1_t4_i1","stage":1,"torch_threads":4,"torch_interop_threads":1,"omp_threads":4,"mkl_threads":4,"num_workers":0,"persistent_workers":false,"timings":[2.9286866029997327,2.714529097000195,2.805338600000141],"median":2.805338600000141,"min":2.714529097000195,"max":2.9286866029997327},
+    {"candidate_id":"s1_t4_i2","stage":1,"torch_threads":4,"torch_interop_threads":2,"omp_threads":4,"mkl_threads":4,"num_workers":0,"persistent_workers":false,"timings":[2.9024767689998043,3.0631862390000606,3.3083364359999905],"median":3.0631862390000606,"min":2.9024767689998043,"max":3.3083364359999905},
+    {"candidate_id":"s1_t2_i1","stage":1,"torch_threads":2,"torch_interop_threads":1,"omp_threads":2,"mkl_threads":2,"num_workers":0,"persistent_workers":false,"timings":[4.70100184399962,4.602985608999916,4.54949068499991],"median":4.602985608999916,"min":4.54949068499991,"max":4.70100184399962},
+    {"candidate_id":"s1_t1_i1","stage":1,"torch_threads":1,"torch_interop_threads":1,"omp_threads":1,"mkl_threads":1,"num_workers":0,"persistent_workers":false,"timings":[8.354100527999435,8.340523602999383,8.630294477000461],"median":8.354100527999435,"min":8.340523602999383,"max":8.630294477000461}
+  ],
+  "wall_clock_ordering": ["s1_t8_i1","s3_t8_o4_m8","s3_t8_o4_m4","s2_t6_i1","s2_t8_i2","s3_t8_o8_m4","s2_t7_i1","s2_t9_i1","s1_t4_i1","s1_t4_i2","s1_t2_i1","s1_t1_i1"],
+  "finalists": ["s1_t8_i1","s3_t8_o4_m8","s3_t8_o4_m4"],
+  "timing_uncertainty": "PERFORMANCE_TIE_OR_UNCERTAIN",
+  "uncertainty_reason": "The timing ranges of the two fastest candidates overlap; this benchmark does not freeze a winner.",
+  "scientific_metrics_used_for_ranking": false,
+  "final_performance_selected": false,
+  "final_performance_frozen": false,
+  "real_formal_baseline_frozen": false,
+  "formal_runs_executed": 0
+}

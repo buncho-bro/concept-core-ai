@@ -1,0 +1,20 @@
+{
+  "primary_statistic": "median wall-clock seconds",
+  "valid_timing_observations": [
+    {"candidate_id":"s1_t1_i1","stage":1,"execution_order":1,"timings":[8.354100527999435,8.340523602999383,8.630294477000461],"exit_status":0,"observed":{"torch_threads":1,"torch_interop_threads":1,"OMP_NUM_THREADS":"1","MKL_NUM_THREADS":"1"}},
+    {"candidate_id":"s1_t2_i1","stage":1,"execution_order":2,"timings":[4.70100184399962,4.602985608999916,4.54949068499991],"exit_status":0,"observed":{"torch_threads":2,"torch_interop_threads":1,"OMP_NUM_THREADS":"2","MKL_NUM_THREADS":"2"}},
+    {"candidate_id":"s1_t4_i1","stage":1,"execution_order":3,"timings":[2.9286866029997327,2.714529097000195,2.805338600000141],"exit_status":0,"observed":{"torch_threads":4,"torch_interop_threads":1,"OMP_NUM_THREADS":"4","MKL_NUM_THREADS":"4"}},
+    {"candidate_id":"s1_t8_i1","stage":1,"execution_order":4,"timings":[1.8053283230001398,1.8892372219997924,2.063149925000289],"exit_status":0,"observed":{"torch_threads":8,"torch_interop_threads":1,"OMP_NUM_THREADS":"8","MKL_NUM_THREADS":"8"}},
+    {"candidate_id":"s1_t4_i2","stage":1,"execution_order":5,"timings":[2.9024767689998043,3.0631862390000606,3.3083364359999905],"exit_status":0,"observed":{"torch_threads":4,"torch_interop_threads":2,"OMP_NUM_THREADS":"4","MKL_NUM_THREADS":"4"}},
+    {"candidate_id":"s2_t6_i1","stage":2,"execution_order":7,"timings":[2.1693426729998464,2.2821175540002514,2.5597091259996887],"exit_status":0,"observed":{"torch_threads":6,"torch_interop_threads":1,"OMP_NUM_THREADS":"6","MKL_NUM_THREADS":"6"}},
+    {"candidate_id":"s2_t7_i1","stage":2,"execution_order":8,"timings":[2.278436696999961,2.464868906999982,2.4721899850001137],"exit_status":0,"observed":{"torch_threads":7,"torch_interop_threads":1,"OMP_NUM_THREADS":"7","MKL_NUM_THREADS":"7"}},
+    {"candidate_id":"s2_t9_i1","stage":2,"execution_order":9,"timings":[2.623732259999997,2.629193392999696,2.486233460999756],"exit_status":0,"observed":{"torch_threads":9,"torch_interop_threads":1,"OMP_NUM_THREADS":"9","MKL_NUM_THREADS":"9"}},
+    {"candidate_id":"s2_t8_i2","stage":2,"execution_order":10,"timings":[2.3545994639998753,2.309084874000291,2.2298924589995295],"exit_status":0,"observed":{"torch_threads":8,"torch_interop_threads":2,"OMP_NUM_THREADS":"8","MKL_NUM_THREADS":"8"}},
+    {"candidate_id":"s3_t8_o4_m4","stage":3,"execution_order":11,"timings":[2.218546136000441,2.326761694999732,2.1312545580003643],"exit_status":0,"observed":{"torch_threads":8,"torch_interop_threads":1,"OMP_NUM_THREADS":"4","MKL_NUM_THREADS":"4"}},
+    {"candidate_id":"s3_t8_o8_m4","stage":3,"execution_order":12,"timings":[2.2811032130002786,2.397314087000268,2.372646302999783],"exit_status":0,"observed":{"torch_threads":8,"torch_interop_threads":1,"OMP_NUM_THREADS":"8","MKL_NUM_THREADS":"4"}},
+    {"candidate_id":"s3_t8_o4_m8","stage":3,"execution_order":13,"timings":[2.110535748000075,1.935771012999794,1.9863476109994735],"exit_status":0,"observed":{"torch_threads":8,"torch_interop_threads":1,"OMP_NUM_THREADS":"4","MKL_NUM_THREADS":"8"}}
+  ],
+  "invalid_timing_observations": [
+    {"candidate_id":"s2_t8_w1_np","stage":2,"execution_order":6,"classification":"ENVIRONMENT_INFEASIBLE","valid_timing":false,"reason":"PermissionError [Errno 1] Operation not permitted during multiprocessing IPC/socket creation"}
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "completed_candidates": [
+    {"candidate_id":"s1_t1_i1","stage":1,"torch_threads":1,"torch_interop_threads":1,"omp_threads":1,"mkl_threads":1,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s1_t2_i1","stage":1,"torch_threads":2,"torch_interop_threads":1,"omp_threads":2,"mkl_threads":2,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s1_t4_i1","stage":1,"torch_threads":4,"torch_interop_threads":1,"omp_threads":4,"mkl_threads":4,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s1_t8_i1","stage":1,"torch_threads":8,"torch_interop_threads":1,"omp_threads":8,"mkl_threads":8,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s1_t4_i2","stage":1,"torch_threads":4,"torch_interop_threads":2,"omp_threads":4,"mkl_threads":4,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s2_t6_i1","stage":2,"torch_threads":6,"torch_interop_threads":1,"omp_threads":6,"mkl_threads":6,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s2_t7_i1","stage":2,"torch_threads":7,"torch_interop_threads":1,"omp_threads":7,"mkl_threads":7,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s2_t9_i1","stage":2,"torch_threads":9,"torch_interop_threads":1,"omp_threads":9,"mkl_threads":9,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s2_t8_i2","stage":2,"torch_threads":8,"torch_interop_threads":2,"omp_threads":8,"mkl_threads":8,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s3_t8_o4_m4","stage":3,"torch_threads":8,"torch_interop_threads":1,"omp_threads":4,"mkl_threads":4,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s3_t8_o8_m4","stage":3,"torch_threads":8,"torch_interop_threads":1,"omp_threads":8,"mkl_threads":4,"num_workers":0,"persistent_workers":false},
+    {"candidate_id":"s3_t8_o4_m8","stage":3,"torch_threads":8,"torch_interop_threads":1,"omp_threads":4,"mkl_threads":8,"num_workers":0,"persistent_workers":false}
+  ],
+  "environment_infeasible_candidates": [
+    {
+      "candidate_id":"s2_t8_w1_np",
+      "stage":2,
+      "torch_threads":8,
+      "torch_interop_threads":1,
+      "omp_threads":8,
+      "mkl_threads":8,
+      "num_workers":1,
+      "persistent_workers":false,
+      "classification":"ENVIRONMENT_INFEASIBLE",
+      "exception_type":"PermissionError",
+      "error_message":"[Errno 1] Operation not permitted",
+      "failure_operation":"multiprocessing IPC/socket resource creation during first DataLoader iteration",
+      "scientific_training_began":false,
+      "valid_timing_observations":0,
+      "execution_order":6
+    }
+  ],
+  "technical_failures": [],
+  "completed_candidate_count": 12,
+  "environment_infeasible_candidate_count": 1,
+  "valid_timing_observation_count": 36
+}
