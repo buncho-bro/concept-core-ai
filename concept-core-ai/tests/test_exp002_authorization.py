@@ -1,4 +1,5 @@
 from copy import deepcopy
+import os
 from pathlib import Path
 import subprocess
 
@@ -15,8 +16,11 @@ REASON = "Human-approved restart after canonical evidence review"
 
 
 def git(root, *args):
+    environment = os.environ.copy()
+    environment.update({"LANG": "C", "LC_ALL": "C", "LANGUAGE": "C"})
     return subprocess.run(["git", "-C", str(root), *args], check=True, text=True,
-                          capture_output=True).stdout.strip()
+                          encoding="utf-8", errors="strict", capture_output=True,
+                          env=environment).stdout.strip()
 
 
 def repository(tmp_path):

@@ -54,6 +54,58 @@ def test_fresh_worker_validates_before_scientific_native_imports(tmp_path):
     assert provenance["native_modules_loaded_before_guard"] == []
 
 
+def test_official_run_one_cli_reaches_clean_guarded_worker(tmp_path):
+    path = process_manifest(tmp_path)
+    project = Path(__file__).resolve().parents[1]
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(project / "src")
+    script = r'''import json
+import subprocess
+from exp002 import baseline, cli
+
+manifest = json.loads(open(BASELINE + "/manifest.json", encoding="utf-8").read())
+baseline.validate_runtime = lambda root, path: manifest
+baseline.register_attempt = lambda *args: {
+    "attempt_id": "fixture", "attempt_kind": "canonical",
+    "parent_canonical_attempt_id": None,
+}
+real_run = subprocess.run
+def validated_worker(command, cwd, env, check):
+    result = real_run([*command, "--validate-only"], cwd=cwd, env=env,
+                      text=True, encoding="utf-8", capture_output=True, check=False)
+    print(result.stdout.strip())
+    if result.stderr:
+        print(result.stderr, file=__import__("sys").stderr)
+    return result
+cli.subprocess.run = validated_worker
+raise SystemExit(cli.main([
+    "run-one", "--mode", "RUN", "--master-seed", "1001",
+    "--baseline", BASELINE, "--attempt-id", "fixture", "--output", OUTPUT,
+]))
+'''.replace("BASELINE", repr(str(path))).replace("OUTPUT", repr(str(tmp_path / "unused")))
+    result = subprocess.run([sys.executable, "-c", script], cwd=project, env=environment,
+                            text=True, encoding="utf-8", capture_output=True, check=False)
+    assert result.returncode == 0, result.stderr
+    provenance = json.loads(result.stdout.strip().splitlines()[-1])
+    assert provenance["validated_before_scientific_imports"] is True
+    assert provenance["native_modules_loaded_before_guard"] == []
+    assert not (tmp_path / "unused").exists()
+
+
+def test_importing_worker_early_cannot_hide_later_native_import(tmp_path):
+    path = process_manifest(tmp_path)
+    project = Path(__file__).resolve().parents[1]
+    environment = os.environ.copy()
+    environment.update(OMP_NUM_THREADS="4", MKL_NUM_THREADS="3",
+                       PYTHONPATH=str(project / "src"))
+    script = ("import exp002.formal_worker as worker; import numpy; "
+              f"worker.main(['--baseline', {str(path)!r}, '--validate-only'])")
+    result = subprocess.run([sys.executable, "-c", script], cwd=project, env=environment,
+                            text=True, encoding="utf-8", capture_output=True, check=False)
+    assert result.returncode != 0
+    assert "Scientific native modules loaded before process-start guard: numpy" in result.stderr
+
+
 @pytest.mark.parametrize("omp,mkl,name", [(1, 3, "OMP_NUM_THREADS"), (4, 1, "MKL_NUM_THREADS")])
 def test_fresh_worker_rejects_process_start_mismatch(tmp_path, omp, mkl, name):
     result = run_guard(process_manifest(tmp_path), omp, mkl)

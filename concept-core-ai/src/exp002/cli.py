@@ -27,16 +27,44 @@ def launch_formal(args, root):
     """Register once, then launch a fresh worker with frozen process-start settings."""
     from .process_start import load_process_start_requirements
     child_environment = os.environ.copy()
-    child_environment.update(load_process_start_requirements(args.baseline))
+    process_start = load_process_start_requirements(args.baseline)
+    child_environment.update(process_start)
     # Parent scientific imports after child env construction cannot initialize the fresh child.
     from .baseline import register_attempt, validate_runtime
-    validate_runtime(root, args.baseline)
-    register_attempt(args.baseline, args.master_seed, args.attempt_id, args.output,
-                     args.retry_of, args.retry_reason)
+    manifest = validate_runtime(root, args.baseline)
+    registration = register_attempt(args.baseline, args.master_seed, args.attempt_id, args.output,
+                                    args.retry_of, args.retry_reason)
     command = [sys.executable, "-m", "exp002.formal_worker", "--baseline", args.baseline,
                "--master-seed", str(args.master_seed), "--attempt-id", args.attempt_id,
                "--output", args.output]
-    return subprocess.run(command, cwd=root, env=child_environment, check=False).returncode
+
+    def record_start_failure(reason, returncode=None):
+        from .artifacts import inventory, new_directory, write_json
+        output = new_directory(args.output)
+        write_json(output / "status.json", {
+            "execution_status": "INVALID", "evaluation_flags": [], "complete": False,
+            "reason": reason,
+        })
+        write_json(output / "worker_start_failure.json", {
+            "type": "WORKER_START_FAILURE",
+            "reason": reason,
+            "returncode": returncode,
+            "registration": registration,
+            "baseline_manifest_hash": manifest["manifest_hash"],
+            "process_start": {"required": process_start, "launcher_environment": process_start},
+            "command_module": "exp002.formal_worker",
+        })
+        write_json(output / "integrity.json", inventory(output))
+
+    try:
+        result = subprocess.run(command, cwd=root, env=child_environment, check=False)
+    except OSError as exc:
+        record_start_failure(f"Formal worker could not start: {exc}")
+        return 1
+    if result.returncode and not Path(args.output).exists():
+        record_start_failure(f"Formal worker exited before creating attempt artifacts: {result.returncode}",
+                             result.returncode)
+    return result.returncode
 
 
 def main(argv=None):

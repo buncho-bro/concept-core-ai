@@ -189,7 +189,14 @@ def test_launcher_registers_once_before_fresh_worker_boundary(frozen, tmp_path, 
     assert observed["environment"]["OMP_NUM_THREADS"] == str(manifest["frozen_performance"]["omp_threads"])
     assert observed["environment"]["MKL_NUM_THREADS"] == str(manifest["frozen_performance"]["mkl_threads"])
     assert list((path / "canonical").glob("1001.json"))
-    assert not (tmp_path / "run").exists()
+    assert read_json(tmp_path / "run" / "status.json")["execution_status"] == "INVALID"
+    failure = read_json(tmp_path / "run" / "worker_start_failure.json")
+    assert failure["registration"]["attempt_id"] == "first"
+    assert failure["baseline_manifest_hash"] == manifest["manifest_hash"]
+    assert failure["process_start"]["required"] == {
+        "OMP_NUM_THREADS": str(manifest["frozen_performance"]["omp_threads"]),
+        "MKL_NUM_THREADS": str(manifest["frozen_performance"]["mkl_threads"]),
+    }
     with pytest.raises((FileNotFoundError, ValueError)):
         args.baseline = str(tmp_path / "missing")
         args.master_seed = 1002
@@ -209,28 +216,31 @@ def test_incomplete_canonical_set_is_step_one_not_evaluated(frozen, tmp_path, mo
     assert result["canonical_attempt_ids"] == ["only-one"]
 
 
-def test_registered_worker_records_enforced_performance_truth(frozen, tmp_path, monkeypatch):
+def test_direct_formal_execution_apis_cannot_bypass_guard(frozen, tmp_path):
     from exp002 import runner
-    root, path, manifest, _ = frozen
+    root, path, _, _ = frozen
     baseline.register_attempt(path, 1001, "first", tmp_path / "run")
-    process = {"required": {"OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"},
-               "observed": {"OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"},
-               "validated_before_scientific_imports": True,
-               "native_modules_loaded_before_guard": []}
-    observed = {}
-    monkeypatch.setattr(runner, "validate_runtime", lambda root, baseline: manifest)
-    monkeypatch.setattr(runner.Performance, "apply_formal",
-                        lambda self, provenance: {"torch_threads": self.torch_threads,
-                                                  "torch_interop_threads": self.torch_interop_threads})
-    monkeypatch.setattr(runner, "configure_precision", lambda: None)
-    monkeypatch.setattr(runner, "_execute_attempt",
-                        lambda config, output, receipt, performance: observed.update(config=config) or
-                        {"execution_status": "VALID", "complete": True})
-    runner.execute_registered_attempt(1001, tmp_path / "run", root, path, "first", process)
-    assert observed["config"]["performance_runtime"] == {
-        "process_start": process,
-        "applied_torch": {"torch_threads": 1, "torch_interop_threads": 1},
-        "dataloader": {"num_workers": 0, "persistent_workers": False}}
+    assert not hasattr(runner, "execute_registered_attempt")
+    with pytest.raises(ValueError, match="guarded fresh worker"):
+        runner._execute_attempt({"formal": True}, tmp_path / "direct", {}, Performance())
+    with pytest.raises(ValueError, match="fresh-process CLI launcher"):
+        runner.run_one(1001, tmp_path / "run", root, path, "first")
+    assert not (tmp_path / "direct").exists()
+
+
+def test_child_start_exception_preserves_registration_and_failure_provenance(frozen, tmp_path, monkeypatch):
+    from exp002 import cli
+    root, path, manifest, _ = frozen
+    monkeypatch.setattr(cli.subprocess, "run",
+                        lambda *args, **kwargs: (_ for _ in ()).throw(OSError("fixture launch failure")))
+    args = SimpleNamespace(baseline=str(path), master_seed=1001, attempt_id="first",
+                           output=str(tmp_path / "run"), retry_of=None, retry_reason=None)
+    assert cli.launch_formal(args, root) == 1
+    registration = read_json(path / "canonical" / "1001.json")
+    failure = read_json(tmp_path / "run" / "worker_start_failure.json")
+    assert registration["attempt_id"] == failure["registration"]["attempt_id"] == "first"
+    assert failure["baseline_manifest_hash"] == manifest["manifest_hash"]
+    assert "fixture launch failure" in failure["reason"]
 
 
 def test_formal_aggregation_rejects_untruthful_runtime_performance(frozen, tmp_path, monkeypatch):
