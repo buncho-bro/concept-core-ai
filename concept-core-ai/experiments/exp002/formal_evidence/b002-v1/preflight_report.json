@@ -1,0 +1,25 @@
+{
+  "schema_version": "exp002-archive-preflight-v1",
+  "formal_runs_executed": 0,
+  "execution_commit": "c4aeeb3c5238d66625af510f999052a6efbc717d",
+  "storage_method": "GitHub Git blob chunks via authenticated connector on independent evidence branch",
+  "chunk_size_limit_bytes": 393216,
+  "dummy_source_sha256": "cccae8ee9474d203506febffe146eb260a5887ac8f64e8e8230b6426bb9ac935",
+  "dummy_archive_sha256": "09d014d6f239893b8e2694fbe60de310b8a46a08c0a9ec36d7941a87d8dd6452",
+  "retrieved_archive_sha256": "09d014d6f239893b8e2694fbe60de310b8a46a08c0a9ec36d7941a87d8dd6452",
+  "chunks": [
+    {
+      "name": "chunk_000",
+      "sha256": "9f57e270bd0e09d55e0e425342ba01ed5694f965310e6e294384bbc7389f3fae",
+      "bytes": 393216
+    },
+    {
+      "name": "chunk_001",
+      "sha256": "373596ec17afaeacee947fa099424bc331b1164d96c683a1be084c36ab8e246a",
+      "bytes": 131502
+    }
+  ],
+  "remote_retrieval_verified": true,
+  "extracted_file_comparison": "PASS",
+  "dummy_payload_removed_from_branch_tree": true
+}
