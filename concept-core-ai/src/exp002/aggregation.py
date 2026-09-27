@@ -6,7 +6,7 @@ import numpy as np
 from .config import FORMAL_SEEDS, SOURCE_COMMIT, configuration, seeds_for
 from .performance import Performance
 from .artifacts import check_integrity, read_json, write_json, new_directory, inventory
-from .baseline import canonical_registrations, retry_registrations
+from .baseline import canonical_registrations, retry_registrations, validate_frozen_authorization
 from .reconstruction import sanity_ratios
 
 
@@ -118,7 +118,7 @@ def record_from_run(path):
                                                 "run_id", "environment", "performance", "device", "device_class",
                                                 "implementation", "baseline_id", "baseline_version",
                                                 "baseline_manifest_hash", "verification_receipt_sha256", "attempt_id",
-                                                "attempt_kind", "parent_canonical_attempt_id")})
+                                                "attempt_kind", "parent_canonical_attempt_id", "performance_runtime")})
         record.update(status)
         if any(config.get(k) != v for k, v in configuration().items()) or config.get("canonical_source_commit") != SOURCE_COMMIT:
             raise ValueError("Scientific configuration/source mismatch")
@@ -174,6 +174,18 @@ def _validate_canonical_record(record, registration, manifest):
         "parent_canonical_attempt_id": None,
     }
     mismatches = [name for name, value in expected.items() if record.get(name) != value]
+    performance = manifest["frozen_performance"]
+    runtime = record.get("performance_runtime", {})
+    process = runtime.get("process_start", {})
+    process_values = {"OMP_NUM_THREADS": str(performance["omp_threads"]),
+                      "MKL_NUM_THREADS": str(performance["mkl_threads"])}
+    if (process.get("required") != process_values or process.get("observed") != process_values
+            or process.get("validated_before_scientific_imports") is not True
+            or runtime.get("applied_torch") != {"torch_threads": performance["torch_threads"],
+                                                "torch_interop_threads": performance["torch_interop_threads"]}
+            or runtime.get("dataloader") != {"num_workers": performance["num_workers"],
+                                             "persistent_workers": performance["persistent_workers"]}):
+        mismatches.append("performance_runtime")
     if Path(record.get("path", "")).resolve() != Path(registration["output"]).resolve():
         mismatches.append("registered_output")
     if mismatches:
@@ -186,6 +198,7 @@ def _validate_canonical_record(record, registration, manifest):
 def aggregate_baseline(baseline, output):
     """The only formal aggregation entry point: caller cannot choose attempt paths."""
     manifest, registrations = canonical_registrations(baseline, require_complete=False)
+    validate_frozen_authorization(Path(__file__).resolve().parents[2], manifest)
     records = [_validate_canonical_record(record_from_run(r["output"]), r, manifest) for r in registrations]
     result = aggregate_records(records)
     retries = []

@@ -58,7 +58,7 @@ def test_technical_exception_is_invalid(status_fixture, stage):
 
 def test_verify_cli_cannot_dispatch_run(tmp_path, monkeypatch):
     from exp002 import cli
-    monkeypatch.setattr(runner, "run_one", lambda *args, **kwargs: pytest.fail("Formal execution is forbidden in tests"))
+    monkeypatch.setattr(cli, "launch_formal", lambda *args, **kwargs: pytest.fail("Formal execution is forbidden in tests"))
     calls = []
     monkeypatch.setattr(cli, "verify", lambda output, root: calls.append(output) or 0)
     assert cli.main(["verify", "--output", str(tmp_path / "verification")]) == 0
@@ -88,3 +88,5 @@ def test_formal_run_guards_reject_test_seed_before_creating_artifacts(tmp_path):
     with pytest.raises(ValueError, match="approved master seed"):
         runner.run_one(77, tmp_path / "forbidden", tmp_path, "no-baseline", "attempt")
     assert not (tmp_path / "forbidden").exists()
+    with pytest.raises(ValueError, match="fresh-process"):
+        runner.run_one(1001, tmp_path / "forbidden", tmp_path, "no-baseline", "attempt")

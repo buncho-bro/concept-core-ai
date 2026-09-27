@@ -28,7 +28,7 @@ Then create the immutable baseline manifest. This operation requires a clean com
 python -m exp002 freeze-baseline --baseline <new-baseline-directory> --baseline-id <id> --baseline-version <version> --verification <receipt.json> --performance <normalized-performance.json> --device cpu
 ```
 
-For a Human-authorized replacement baseline, also provide `--predecessor <old-baseline-directory> --reason <reason>`. The new baseline records that provenance but does not inherit attempts.
+For a Human-authorized replacement baseline, first review and commit an exact-transition authorization record under `experiments/exp002/authorizations/`. Then provide `--predecessor <old-baseline-directory> --reason <exact-authorized-reason> --authorization <committed-record.json>`. The command verifies repository tracking, an unmodified committed Git blob/source commit, integrity hash, predecessor manifest hash, successor identity/version, decision ID, and reason. The new baseline binds that evidence but does not inherit attempts. Free-form reason text alone is rejected. Initial baseline creation does not use these three successor arguments.
 
 Only after freeze may a formal attempt be registered and run:
 
@@ -42,7 +42,7 @@ The performance JSON accepts `torch_threads`, `torch_interop_threads`, `omp_thre
 {"torch_threads": 1, "torch_interop_threads": 1, "omp_threads": 1, "mkl_threads": 1, "num_workers": 0, "persistent_workers": false}
 ```
 
-Select final machine-specific settings before RUN using non-formal wall-clock benchmarking only. The runner reads them only from the frozen manifest; it has no per-run performance override. Launch a fresh process with the corresponding `OMP_NUM_THREADS` and `MKL_NUM_THREADS` environment variables set before Python starts. The runner applies and records the frozen values. No batch-size, epoch, optimizer, architecture, loss, or mathematical analysis controls are exposed as performance options.
+Select final machine-specific settings before RUN using non-formal wall-clock benchmarking only. The runner reads them only from the frozen manifest; it has no per-run performance override. `run-one` registers once, then launches a fresh worker with frozen `OMP_NUM_THREADS` and `MKL_NUM_THREADS` already in its environment. Before scientific imports, the worker rejects any mismatch; it subsequently applies/verifies PyTorch thread counts and passes DataLoader worker settings. Run configuration records process-start observations and applied values. No batch-size, epoch, optimizer, architecture, loss, or mathematical analysis controls are exposed as performance options.
 
 The runner first creates an exclusive canonical registration for that seed, then begins scientific execution. Technical/interrupted failures remain `INVALID`; numerical training failures use `EXPERIMENTAL_FAILURE`; neither can be replaced in the baseline. A diagnostic retry uses a separate identity and output:
 

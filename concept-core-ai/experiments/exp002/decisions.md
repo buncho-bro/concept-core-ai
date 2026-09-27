@@ -935,3 +935,17 @@ If Human decides that a canonical attempt must be replaced, create a new baselin
 ## Reason
 
 This rule prevents result-dependent attempt cherry-picking and makes the required pre-RUN performance freeze auditable. Formal Experiment 002 runs were still zero when this decision was made, so it is execution-governance clarification rather than tuning based on formal scientific results. The scientific conditions, §40 precedence, and seven-step aggregation mathematics are unchanged.
+
+---
+
+# 40. HD-002-01 Operational Provenance Clarification
+
+## Decision
+
+To operationalize `HD-002-01`, formal execution uses a fresh worker whose `OMP_NUM_THREADS` and `MKL_NUM_THREADS` are established by the launcher and verified before scientific native imports. Frozen PyTorch and DataLoader knobs are applied and recorded by the worker. The launcher performs the single canonical/retry registration before child launch, so a launch or worker crash cannot erase the first attempt.
+
+A successor baseline additionally requires one exact-transition Human authorization JSON under `experiments/exp002/authorizations/`. It becomes approval only when unchanged, tracked, and committed in repository history. The successor manifest binds its authorization ID, content hash, Git blob, and source commit. Runtime text or an untracked file cannot authorize a successor.
+
+## Scope
+
+This clarification resolves execution provenance requirements `REV-002-02` and `REV-002-03`. It does not modify scientific conditions, formal seeds, §40 precedence, or aggregation mathematics.

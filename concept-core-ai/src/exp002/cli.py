@@ -4,11 +4,10 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from .artifacts import environment, implementation_fingerprint, new_directory, read_json, write_json
-from .performance import Performance
 
 
 def verify(output, root):
+    from .artifacts import environment, implementation_fingerprint, new_directory, write_json
     output = new_directory(output)
     before, runtime = implementation_fingerprint(root), environment()
     with (output / "pytest.txt").open("x", encoding="utf-8") as stream:
@@ -22,6 +21,22 @@ def verify(output, root):
         "implementation_unchanged_during_verification": unchanged})
     print((output / "pytest.txt").read_text(encoding="utf-8"))
     return code
+
+
+def launch_formal(args, root):
+    """Register once, then launch a fresh worker with frozen process-start settings."""
+    from .process_start import load_process_start_requirements
+    child_environment = os.environ.copy()
+    child_environment.update(load_process_start_requirements(args.baseline))
+    # Parent scientific imports after child env construction cannot initialize the fresh child.
+    from .baseline import register_attempt, validate_runtime
+    validate_runtime(root, args.baseline)
+    register_attempt(args.baseline, args.master_seed, args.attempt_id, args.output,
+                     args.retry_of, args.retry_reason)
+    command = [sys.executable, "-m", "exp002.formal_worker", "--baseline", args.baseline,
+               "--master-seed", str(args.master_seed), "--attempt-id", args.attempt_id,
+               "--output", args.output]
+    return subprocess.run(command, cwd=root, env=child_environment, check=False).returncode
 
 
 def main(argv=None):
@@ -41,6 +56,7 @@ def main(argv=None):
     f.add_argument("--device", default="cpu")
     f.add_argument("--predecessor")
     f.add_argument("--reason")
+    f.add_argument("--authorization")
     r = commands.add_parser("run-one", help="Separate RUN stage: one formal attempt")
     r.add_argument("--mode", choices=["RUN"], required=True)
     r.add_argument("--master-seed", type=int, choices=range(1001, 1006), required=True)
@@ -60,20 +76,19 @@ def main(argv=None):
     if args.command == "verify":
         return verify(args.output, root)
     if args.command == "prepare-performance":
+        from .artifacts import read_json, write_json
+        from .performance import Performance
         write_json(args.output, Performance(**read_json(args.performance)).as_dict())
         return 0
     if args.command == "freeze-baseline":
+        from .artifacts import read_json
         from .baseline import freeze_baseline
         freeze_baseline(root, args.baseline, args.baseline_id, args.baseline_version,
                         args.verification, read_json(args.performance), args.device,
-                        args.predecessor, args.reason)
+                        args.predecessor, args.reason, args.authorization)
         return 0
     if args.command == "run-one":
-        from .runner import run_one
-        status = run_one(args.master_seed, args.output, root, args.baseline, args.attempt_id,
-                         args.retry_of, args.retry_reason)
-        print(status)
-        return 0 if status["execution_status"] == "VALID" else 1
+        return launch_formal(args, root)
     if args.command == "aggregate":
         from .aggregation import aggregate_baseline
         print(aggregate_baseline(args.baseline, args.output)["classification"])
