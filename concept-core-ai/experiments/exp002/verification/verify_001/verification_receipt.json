@@ -1,0 +1,238 @@
+{
+  "authorization_tests": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 11,
+    "skipped": 0
+  },
+  "creation_provenance": {
+    "created_utc": "2026-09-27T10:43:08.675023+00:00",
+    "creator": "Codex VERIFY",
+    "receipt_location": "experiments/exp002/verification/verify_001/verification_receipt.json",
+    "verified_source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+  },
+  "device": "cpu",
+  "device_class": "cpu",
+  "environment": {
+    "packages": {
+      "matplotlib": "3.10.3",
+      "numpy": "2.3.5",
+      "pytest": "8.4.1",
+      "scikit-learn": "1.6.1",
+      "scipy": "1.15.3",
+      "threadpoolctl": "3.6.0",
+      "torch": "2.7.1"
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python": "3.12.14"
+  },
+  "environment_identity": {
+    "architecture": "x86_64",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+    "device": "cpu",
+    "device_class": "cpu",
+    "lock_version_validation": "PASS",
+    "os": "Linux",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "python_executable": "/workspace/scratch/6f47d6a38462/exp002-verify-venv/bin/python",
+    "runtime": {
+      "packages": {
+        "matplotlib": "3.10.3",
+        "numpy": "2.3.5",
+        "pytest": "8.4.1",
+        "scikit-learn": "1.6.1",
+        "scipy": "1.15.3",
+        "threadpoolctl": "3.6.0",
+        "torch": "2.7.1"
+      },
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "python": "3.12.14"
+    }
+  },
+  "exit_code": 0,
+  "experiment_id": "exp002",
+  "formal_runs_executed": 0,
+  "governance": {
+    "authorization": {
+      "status": "PASS",
+      "testcases": [
+        "test_untracked_authorization_is_rejected",
+        "test_valid_committed_authorization_freezes_successor_and_initial_baseline_needs_none"
+      ]
+    },
+    "canonical_baseline": {
+      "status": "PASS",
+      "testcases": [
+        "test_child_start_exception_preserves_registration_and_failure_provenance",
+        "test_first_registration_is_canonical_and_retry_never_replaces_it",
+        "test_incomplete_canonical_set_is_step_one_not_evaluated",
+        "test_new_baseline_preserves_predecessor_without_inheriting_attempts",
+        "test_valid_retry_does_not_replace_failed_canonical[EXPERIMENTAL_FAILURE-INCONCLUSIVE]",
+        "test_valid_retry_does_not_replace_failed_canonical[INVALID-NOT_EVALUATED]"
+      ]
+    },
+    "dataloader": {
+      "status": "PASS",
+      "testcases": [
+        "test_dataloader_uses_both_frozen_worker_knobs"
+      ]
+    },
+    "fresh_worker": {
+      "status": "PASS",
+      "testcases": [
+        "test_direct_formal_execution_apis_cannot_bypass_guard",
+        "test_fresh_worker_validates_before_scientific_native_imports",
+        "test_importing_worker_early_cannot_hide_later_native_import",
+        "test_official_run_one_cli_reaches_clean_guarded_worker"
+      ]
+    },
+    "performance_and_aggregation": {
+      "status": "PASS",
+      "testcases": [
+        "test_all_canonical_attempts_must_match_frozen_performance",
+        "test_arbitrary_attempt_cherry_picking_cannot_change_formal_classification",
+        "test_formal_aggregation_rejects_untruthful_runtime_performance",
+        "test_formal_cli_has_no_arbitrary_paths_or_per_run_performance",
+        "test_frozen_performance_cannot_be_changed[mkl_threads-2]",
+        "test_frozen_performance_cannot_be_changed[num_workers-1]",
+        "test_frozen_performance_cannot_be_changed[omp_threads-2]",
+        "test_frozen_performance_cannot_be_changed[persistent_workers-True]",
+        "test_frozen_performance_cannot_be_changed[torch_interop_threads-2]",
+        "test_frozen_performance_cannot_be_changed[torch_threads-2]"
+      ]
+    },
+    "process_start_omp_mkl": {
+      "status": "PASS",
+      "testcases": [
+        "test_fresh_worker_rejects_process_start_mismatch[1-3-OMP_NUM_THREADS]",
+        "test_fresh_worker_rejects_process_start_mismatch[4-1-MKL_NUM_THREADS]"
+      ]
+    },
+    "torch_threads": {
+      "status": "PASS",
+      "testcases": [
+        "test_formal_torch_application_rejects_false_process_start_provenance",
+        "test_formal_torch_threads_are_applied_and_verified"
+      ]
+    }
+  },
+  "implementation": {
+    "experiments/exp001/decisions.md": "278411eef015f818dce23c62b83c8cddffc5cd4d227b2143d1c59e14118aeced",
+    "experiments/exp001/spec.md": "1396a620320c6a30270b4214fa9745ea6a7b205be885d7afefdd53e769be3809",
+    "experiments/exp002/decisions.md": "051e0666647baa5596b9005ec2b4a55235dd922b4eed52c645396763e893e796",
+    "experiments/exp002/spec.md": "e1abbfc9bf070d954a8eddedfa82afaafaa05bbf14b26bcabf4cb7430150bc3b",
+    "pyproject.toml": "de9b6c6e95074d505ce04d9c602c8441ea93b23dd29f91d19bc46cb4a561a98d",
+    "requirements-lock.txt": "1908334288a05d09be644b4938b8510bbca4410bb08b2d22c929f310675190cc",
+    "src/exp001/__init__.py": "efd51737e982e23577f68e290c48eb7de009a2b20a6796003bafd21bc6280c7a",
+    "src/exp001/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/exp001/aggregation.py": "476aae546a6db49240faf6ecd571dd6a9efe249542f301950f01f9e81dd24e7b",
+    "src/exp001/artifacts.py": "b359e7462b2f46e5d70e728f52496fb0f6d3db6d3faa8ea631f211ea2b15fe81",
+    "src/exp001/cli.py": "613f9c940db2c7204fc43358b4f089a038ab451e53eac4e9160f91c5f7f4510e",
+    "src/exp001/config.py": "9f05bc21b7f7c5709501ee4be4624342e5b7249b1e7a9b4d4af0a3e17700e256",
+    "src/exp001/data.py": "8dbfb2799807921df823d20bb697ca4f08c07d9059f58dad0537adc31c04cda6",
+    "src/exp001/distance.py": "4cbaf922afcb79ddecf0f54f3d6ab7a3a95bab4b9d816b6a5c2e43bb02f83ca4",
+    "src/exp001/evaluation.py": "10b5f88b221c7e054f29f3515ce41f48344f48c80780b9f229398cdf6a956cbd",
+    "src/exp001/model.py": "013038e1cad82027caeb0f4eb1e25a77d33662cbfe210677700db47273af6554",
+    "src/exp001/runner.py": "27d41db2733080f4bfcaaaa8138485f63a6605882b90e7a13e83bfa3027d57c9",
+    "src/exp001/training.py": "4e2852970a2835898919d4728c1482fdcf7504b2381e9f3e82ac018f03f41b0c",
+    "src/exp001/visualization.py": "b1450a712dbbcb38acccfe8641f73b21a2f10f9060ab95a8b0181dfea8d6b927",
+    "src/exp002/__init__.py": "7f93111450fc325ce6426690c9888c29c862c111c6a19fdd3ce526a3ca5ed4e9",
+    "src/exp002/__main__.py": "307299fda7b77d22c64cb51430ec75e5f59d78e9c948786afb3b2544fe45e4b7",
+    "src/exp002/aggregation.py": "a8d8161b7ba9e942d5a0f3a2167974ca6374e2356679318c6be640476fe922cc",
+    "src/exp002/artifacts.py": "4186ef943672d8971423198b14ee31c15a96afe1e4cf3afa413fbcf5b6040134",
+    "src/exp002/baseline.py": "d7098e0520ae55330796943f133878feeae5abd74e1ddb89eec1f0b6d576d23d",
+    "src/exp002/cli.py": "f861d8e1206dbb2ad3715b02dada05e4746061dce147c9af6a77298cf2fb6b8b",
+    "src/exp002/config.py": "dca9b6d2c6ba387fe1d700e6ce959813d3bd3978e31707c6113205eae9ab8d30",
+    "src/exp002/data.py": "16484d3f32bf68ff6e58ace1e851f3ce2f2f6fd2986ed3eddf6cf3b0a9d26c79",
+    "src/exp002/distance.py": "daac3f5849ecff42beeb4b990e078b89a8ee7923bde957f86e204717677acb32",
+    "src/exp002/evaluation.py": "76e76f6bec2a8ce7202c354a6e0d8e54824f3b43c03b6e5c9a8b0b24f7867712",
+    "src/exp002/formal_worker.py": "d61465a7a01664e3ca758a92844139357623797ada805a4d83544b1ca1b394fa",
+    "src/exp002/performance.py": "dbddbfa27ad4ef456cfe93c8bef0595ceafe3367aea85d2fa2b5ea40c53635ff",
+    "src/exp002/process_start.py": "2c4c773ee383cd8d6cfcec98be8c3faaeafd2847b149603cdbaa3ba4a701007f",
+    "src/exp002/reconstruction.py": "95ca9332e68ba4e014f9ce7cd338e5bd7bf860e0398379197a47e6083004851f",
+    "src/exp002/runner.py": "f5efd8909b5bab5f70bc2c37ef567b1bc30f8fbb58492579c22ddcbc1baab840",
+    "src/exp002/training.py": "7f120e5e7dafb205dd931b4e0ec8cae36083045a6eac082bc59696bb0f554172",
+    "src/exp002/visualization.py": "1eee72cae54b31f32d1fae92f2dd5c140cbfdeeb1b8198bb69ff0cbdfd19cfe1",
+    "tests/conftest.py": "2b375db8e0c0cdd2bcb6be4246d22118486f1e3a3201570ff80f263f48a3021e",
+    "tests/test_aggregation.py": "35d348ae00d16e1ae7713ac385a014f5d0b3ec75154974f73b0488c29020c603",
+    "tests/test_artifacts.py": "e535c9599a4caaec9f99308f5e8bfd6d4b6792bed66cf6cad0078b1e48de6c20",
+    "tests/test_data.py": "e51a8e5ffa667166e1e70b4690fd9565de8c62bbed6604562854f2af1530e809",
+    "tests/test_distance.py": "8de5d5cfdb19e7e53cee6e16600190466e30ce1dd3a3a348b23aeb91bb07b08f",
+    "tests/test_evaluation.py": "131871bf4d348a5f825dd0c7961adac7100b276f321e878d44c515d493e2cec3",
+    "tests/test_exp002_aggregation.py": "886a44d8eb30452a3386f0c5855505061a280dc0926f30a25941e41ae2fac4ad",
+    "tests/test_exp002_authorization.py": "af6eb24cc9c18c0398379081dfd364725f9267fd8fc48a8642a77c1766415eb7",
+    "tests/test_exp002_baseline.py": "af56258ac1ee67886f66be63c7bc85af2c3f03bcca2df1022545cb083d606dcc",
+    "tests/test_exp002_data.py": "2496cc2e195215883e220acd811fc77f35684c994f069a965269f51d6263a515",
+    "tests/test_exp002_distance.py": "db14f7c182c96feb2861d39cb344c9603e0ee7df896b18dd2aaff2bda6ec3733",
+    "tests/test_exp002_evaluation.py": "1ef1bd8b421b711be3688a2216432fdfa6e1cd69d1d3502a4720e7bfd7a56796",
+    "tests/test_exp002_pipeline.py": "8b895ad72dccc4e54584c1438eb38efd35343d5b74054b903b68fbb4cb636c00",
+    "tests/test_exp002_reconstruction.py": "9f87517bc40d275afdb4f93d4ea2ca8b04d68d36d3919def5f15eaecbb576a66",
+    "tests/test_exp002_runner.py": "8917b082bdf48a8b0bb2b3caab2c8553144a23e594c6aa02ef70f84033b0ae87",
+    "tests/test_exp002_runtime_governance.py": "d2cab52246fccd9edfff8e28954c4a71d82f23e33dc631098e94e06fe3cf1c5d",
+    "tests/test_model_training.py": "c4825e3552946a807a65201292c3e6147aeeda940cc330511ddaf660ac8168ed",
+    "tests/test_pipeline.py": "f40e455e2e46fb6295ac520c2e08af564f288229453a9db5224ec4713140b736",
+    "tests/test_runner_status.py": "e65b0822ed7c54022fc83f19ba55852332bea3c69e81bcf7e865700667bc85ec"
+  },
+  "implementation_unchanged_during_verification": true,
+  "integrity_sha256": "f1517bfd42c1b32ca10467543d2d0d5ebaee293d4ab85b6220803916acd04a9b",
+  "mode": "VERIFY",
+  "normative": {
+    "experiments/exp002/decisions.md": {
+      "git_blob": "9ad7f205a0e1a1e5eb64a858d78e097c13f4b9ed",
+      "sha256": "051e0666647baa5596b9005ec2b4a55235dd922b4eed52c645396763e893e796",
+      "source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+    },
+    "experiments/exp002/review/implementation_rereview_v3/READINESS.md": {
+      "git_blob": "27cd28a362761b8bf603c4b31be67d72f2d6293e",
+      "sha256": "6d624bd3701ff6ae137b8ff39d30eea98933e44bf378338aed52d481f71aae9e",
+      "source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+    },
+    "experiments/exp002/spec.md": {
+      "git_blob": "ec42b5bc51b7ca4fac9b34eac84124bb3dc5ef4b",
+      "sha256": "e1abbfc9bf070d954a8eddedfa82afaafaa05bbf14b26bcabf4cb7430150bc3b",
+      "source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+    }
+  },
+  "real_formal_baseline_frozen": false,
+  "real_performance_benchmark_performed": false,
+  "real_performance_configuration_frozen": false,
+  "real_performance_configuration_selected": false,
+  "schema_version": "exp002-pre-run-verification-v1",
+  "scientific_mathematical_conditions_changed": false,
+  "source_state": {
+    "branch": "main",
+    "origin": "/workspace/scratch/b653a8c03b3b/concept-core-ai",
+    "repository": "buncho-bro/concept-core-ai",
+    "source_clean_before_verify": true,
+    "submodules": "",
+    "tracked_modifications": [],
+    "untracked_experiment_files_before_verify": [],
+    "verified_source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+  },
+  "status": "VERIFY_PASSED",
+  "supporting_artifacts_sha256": {
+    "authorization-junit.xml": "560f3b6a42dafe0eb93f599c71c25e0d7658d5fba63768791d52022a5f992672",
+    "authorization.txt": "60283e207ade73ee3c33ded3b948ee96d42e381f698e5b101f406841e17be801",
+    "environment.json": "2f7330c9c7bca6d6b1e4891f64967e609768e1e35253c312f18ba0d6357aa1b9",
+    "governance.json": "42e1561c9474b2dbd322ef13dacce4df8a5bd5af96023331decf4ccc749bf64b",
+    "implementation.json": "000324341b45212f4b1081792a2e14f630b059c801329f8b59fdeb3f0903edde",
+    "junit.xml": "4546b18506004af180728a7466addbd83ecb936dd82eb0f978ea8bf16b546fe1",
+    "normative.json": "28b9b67e1939eb62a04c9d2dab7abea4fde98ce4a562d3bb6667a5b43dbe298d",
+    "pytest.txt": "b478881e09c89cbccf04e191031765b02209588cde3f1000de5b49fdb4d706f9",
+    "source_state.json": "4482699cbd7a982a4641c7e0f805d7e49d4a1f70b0cdd01e3e7ce68ab8a9c4d8"
+  },
+  "tests": {
+    "command": "PYTHONPATH=src TMPDIR=/workspace/scratch/6f47d6a38462/verify-temp /workspace/scratch/6f47d6a38462/exp002-verify-venv/bin/python -m pytest tests -q --basetemp=/workspace/scratch/6f47d6a38462/verify-temp/pytest --junitxml=/workspace/scratch/6f47d6a38462/verify-temp/junit.xml",
+    "elapsed_seconds": 73.785,
+    "errors": 0,
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 254,
+    "skipped": 0,
+    "temporary_directory_policy": "dedicated writable TMPDIR and --basetemp outside repository",
+    "warnings": 14,
+    "xfailed": 0,
+    "xpassed": 0
+  },
+  "verified_source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+}

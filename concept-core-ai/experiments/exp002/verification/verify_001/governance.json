@@ -1,0 +1,68 @@
+{
+  "checks": {
+    "authorization": {
+      "status": "PASS",
+      "testcases": [
+        "test_untracked_authorization_is_rejected",
+        "test_valid_committed_authorization_freezes_successor_and_initial_baseline_needs_none"
+      ]
+    },
+    "canonical_baseline": {
+      "status": "PASS",
+      "testcases": [
+        "test_child_start_exception_preserves_registration_and_failure_provenance",
+        "test_first_registration_is_canonical_and_retry_never_replaces_it",
+        "test_incomplete_canonical_set_is_step_one_not_evaluated",
+        "test_new_baseline_preserves_predecessor_without_inheriting_attempts",
+        "test_valid_retry_does_not_replace_failed_canonical[EXPERIMENTAL_FAILURE-INCONCLUSIVE]",
+        "test_valid_retry_does_not_replace_failed_canonical[INVALID-NOT_EVALUATED]"
+      ]
+    },
+    "dataloader": {
+      "status": "PASS",
+      "testcases": [
+        "test_dataloader_uses_both_frozen_worker_knobs"
+      ]
+    },
+    "fresh_worker": {
+      "status": "PASS",
+      "testcases": [
+        "test_direct_formal_execution_apis_cannot_bypass_guard",
+        "test_fresh_worker_validates_before_scientific_native_imports",
+        "test_importing_worker_early_cannot_hide_later_native_import",
+        "test_official_run_one_cli_reaches_clean_guarded_worker"
+      ]
+    },
+    "performance_and_aggregation": {
+      "status": "PASS",
+      "testcases": [
+        "test_all_canonical_attempts_must_match_frozen_performance",
+        "test_arbitrary_attempt_cherry_picking_cannot_change_formal_classification",
+        "test_formal_aggregation_rejects_untruthful_runtime_performance",
+        "test_formal_cli_has_no_arbitrary_paths_or_per_run_performance",
+        "test_frozen_performance_cannot_be_changed[mkl_threads-2]",
+        "test_frozen_performance_cannot_be_changed[num_workers-1]",
+        "test_frozen_performance_cannot_be_changed[omp_threads-2]",
+        "test_frozen_performance_cannot_be_changed[persistent_workers-True]",
+        "test_frozen_performance_cannot_be_changed[torch_interop_threads-2]",
+        "test_frozen_performance_cannot_be_changed[torch_threads-2]"
+      ]
+    },
+    "process_start_omp_mkl": {
+      "status": "PASS",
+      "testcases": [
+        "test_fresh_worker_rejects_process_start_mismatch[1-3-OMP_NUM_THREADS]",
+        "test_fresh_worker_rejects_process_start_mismatch[4-1-MKL_NUM_THREADS]"
+      ]
+    },
+    "torch_threads": {
+      "status": "PASS",
+      "testcases": [
+        "test_formal_torch_application_rejects_false_process_start_provenance",
+        "test_formal_torch_threads_are_applied_and_verified"
+      ]
+    }
+  },
+  "evidence": "full-suite JUnit and authorization-only JUnit; tests use synthetic fixtures and fresh subprocesses",
+  "formal_training_executed": 0
+}

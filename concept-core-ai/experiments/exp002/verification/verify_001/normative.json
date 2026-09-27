@@ -1,0 +1,17 @@
+{
+  "experiments/exp002/decisions.md": {
+    "git_blob": "9ad7f205a0e1a1e5eb64a858d78e097c13f4b9ed",
+    "sha256": "051e0666647baa5596b9005ec2b4a55235dd922b4eed52c645396763e893e796",
+    "source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+  },
+  "experiments/exp002/review/implementation_rereview_v3/READINESS.md": {
+    "git_blob": "27cd28a362761b8bf603c4b31be67d72f2d6293e",
+    "sha256": "6d624bd3701ff6ae137b8ff39d30eea98933e44bf378338aed52d481f71aae9e",
+    "source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+  },
+  "experiments/exp002/spec.md": {
+    "git_blob": "ec42b5bc51b7ca4fac9b34eac84124bb3dc5ef4b",
+    "sha256": "e1abbfc9bf070d954a8eddedfa82afaafaa05bbf14b26bcabf4cb7430150bc3b",
+    "source_commit": "8d65158fcd8ad148eaab68fe14eb529571832abf"
+  }
+}
