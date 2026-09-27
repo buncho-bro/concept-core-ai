@@ -1,5 +1,4 @@
 """Independent Exp002 execution and saved-artifact evaluation; never classify a run."""
-import os
 from pathlib import Path
 import traceback
 import numpy as np
@@ -7,13 +6,12 @@ import torch
 from exp001.runner import write_metadata, read_metadata
 from exp001.model import Autoencoder, configure_precision
 from exp001.training import ExperimentalFailure, load_checkpoint
-from .config import ACTIVE_SPLITS, COLORS, SHAPES, FORMAL_SEEDS, SOURCE_COMMIT, configuration, seeds_for
+from .config import ACTIVE_SPLITS, COLORS, SHAPES, FORMAL_SEEDS, configuration
 from .data import generate_metadata, assign_splits, generate_images, split_indices, validate_splits, SplitDataset
 from .training import train, extract_latent, make_loader
 from .performance import Performance
 from .artifacts import (new_directory, write_json, read_json, save_npz, inventory, environment,
                         implementation_fingerprint, check_integrity)
-from .baseline import registered_attempt, validate_runtime
 from .reconstruction import reconstruction_metrics, sanity_ratios
 from .evaluation import evaluate_classifier, pixel_features
 from .distance import analyze_distance, bootstrap_draws
@@ -137,7 +135,9 @@ def export_states(model, images, datasets, indices, rows, loader_seed, output, d
 
 
 def _execute_attempt(config, output, receipt, performance):
-    """Shared orchestration seam; tests supply explicitly non-formal fixture config."""
+    """Execute only a non-formal fixture attempt in-process."""
+    if config.get("formal") is not False:
+        raise ValueError("Formal execution is available only inside the guarded fresh worker")
     output = new_directory(output)
     status = {"execution_status": "INVALID", "evaluation_flags": [], "complete": False,
               "reason": "An interrupted attempt remains INVALID"}
@@ -179,34 +179,6 @@ def run_one(master_seed, output, root, baseline, attempt_id, retry_of=None, retr
     if master_seed not in FORMAL_SEEDS:
         raise ValueError("Formal execution requires an approved master seed")
     raise ValueError("Formal execution requires the fresh-process CLI launcher")
-
-
-def execute_registered_attempt(master_seed, output, root, baseline, attempt_id, process_start_provenance):
-    """Worker-only execution of the attempt already registered by the launcher."""
-    if master_seed not in FORMAL_SEEDS:
-        raise ValueError("Formal execution requires an approved master seed")
-    manifest = validate_runtime(root, baseline)
-    registered_manifest, registration = registered_attempt(baseline, master_seed, attempt_id, output)
-    if registered_manifest["manifest_hash"] != manifest["manifest_hash"]:
-        raise ValueError("Registered attempt manifest changed before worker execution")
-    perf = Performance(**manifest["frozen_performance"])
-    applied_torch = perf.apply_formal(process_start_provenance)
-    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
-    configure_precision()
-    config = {**configuration(), "run_id": Path(output).name, "formal": True, "master_seed": master_seed,
-        "seeds": seeds_for(master_seed), "git_commit": manifest["execution_commit"],
-        "canonical_source_commit": SOURCE_COMMIT, "environment": manifest["required_environment"],
-        "performance": perf.as_dict(), "device": manifest["device"], "device_class": manifest["device_class"],
-        "implementation": manifest["implementation"], "baseline_id": manifest["baseline_id"],
-        "baseline_version": manifest["baseline_version"], "baseline_manifest_hash": manifest["manifest_hash"],
-        "verification_receipt_sha256": manifest["verification"]["sha256"], "attempt_id": attempt_id,
-        "attempt_kind": registration["attempt_kind"],
-        "parent_canonical_attempt_id": registration["parent_canonical_attempt_id"],
-        "performance_runtime": {"process_start": process_start_provenance,
-                                "applied_torch": applied_torch,
-                                "dataloader": {"num_workers": perf.num_workers,
-                                               "persistent_workers": perf.persistent_workers}}}
-    return _execute_attempt(config, output, manifest["verification"]["receipt"], perf)
 
 
 def reanalyze(run, output, root):
