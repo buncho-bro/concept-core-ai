@@ -1,0 +1,65 @@
+{
+  "schema_version": "exp002-formal-baseline-audit-v1",
+  "baseline_id": "exp002-baseline-002",
+  "baseline_version": "v1",
+  "manifest_hash": "94ae20688d1f999a21ae6da02ad3550791eceb6effa3835d2fe2c3970e20b9c5",
+  "manifest_file_sha256": "466cff85fe2ac5dbae69d7451bbe6b5341a4104f9fa79c02468aa28bdac623ce",
+  "execution_commit": "c4aeeb3c5238d66625af510f999052a6efbc717d",
+  "canonical_registration_count": 0,
+  "retry_registration_count": 0,
+  "canonical_slots": {
+    "1001": null,
+    "1002": null,
+    "1003": null,
+    "1004": null,
+    "1005": null
+  },
+  "formal_scientific_runs_executed": 0,
+  "absolute_runtime_baseline_path": "/workspace/scratch/0fffa5c54828/execution/concept-core-ai/runs/exp002/baselines/exp002-baseline-002-v1",
+  "files": [
+    {
+      "original_logical_path": "experiments/exp002/execution_decisions/baseline_identity_001.json",
+      "persisted_path": "concept-core-ai/experiments/exp002/formal_evidence/b002-v1/baseline/human_decision.json",
+      "bytes": 1473,
+      "sha256": "fbe7522b2b284b501176e61d3d3f34a3ca796b23928958fe66bc2a16f05f3575",
+      "storage_method": "normal_git_blob"
+    },
+    {
+      "original_logical_path": "runs/exp002/formal_baseline_002/normalized_performance.json",
+      "persisted_path": "concept-core-ai/experiments/exp002/formal_evidence/b002-v1/baseline/normalized_performance.json",
+      "bytes": 146,
+      "sha256": "ca0c03419e32f3719fbc84a12b6b33276a28f597b7d7c2ba4ccaf1c55b7ca2d3",
+      "storage_method": "normal_git_blob"
+    },
+    {
+      "original_logical_path": "runs/exp002/baselines/exp002-baseline-002-v1/manifest.json",
+      "persisted_path": "concept-core-ai/experiments/exp002/formal_evidence/b002-v1/baseline/manifest.json",
+      "bytes": 21213,
+      "sha256": "466cff85fe2ac5dbae69d7451bbe6b5341a4104f9fa79c02468aa28bdac623ce",
+      "storage_method": "normal_git_blob"
+    },
+    {
+      "original_logical_path": "experiments/exp002/verification/verify_001/verification_receipt.json",
+      "persisted_path": "concept-core-ai/experiments/exp002/formal_evidence/b002-v1/baseline/verification_receipt.json",
+      "bytes": 12922,
+      "sha256": "e19ae35ed48fd671fc035cf6dd3d0174810a1797ff5fec3a13e968ed218d3d70",
+      "storage_method": "normal_git_blob"
+    },
+    {
+      "original_logical_path": "experiments/exp002/performance/selection_001/selected_performance.json",
+      "persisted_path": "concept-core-ai/experiments/exp002/formal_evidence/b002-v1/baseline/selected_performance.json",
+      "bytes": 146,
+      "sha256": "ca0c03419e32f3719fbc84a12b6b33276a28f597b7d7c2ba4ccaf1c55b7ca2d3",
+      "storage_method": "normal_git_blob"
+    },
+    {
+      "original_logical_path": "experiments/exp002/performance/selection_001/selection_record.json",
+      "persisted_path": "concept-core-ai/experiments/exp002/formal_evidence/b002-v1/baseline/selection_record.json",
+      "bytes": 2915,
+      "sha256": "3bdcf3776d88a42e69a68eded8d7141c77df0671d17fdec37038bcdaf5c3ab51",
+      "storage_method": "normal_git_blob"
+    }
+  ],
+  "verification_status": "VERIFY_PASSED",
+  "selection_provenance_commit": "709ebef11b2d4734afd91fcdea0571af97646f43"
+}

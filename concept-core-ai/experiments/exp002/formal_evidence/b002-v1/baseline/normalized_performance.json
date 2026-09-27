@@ -1,0 +1,8 @@
+{
+  "torch_threads": 8,
+  "torch_interop_threads": 1,
+  "num_workers": 0,
+  "persistent_workers": false,
+  "omp_threads": 8,
+  "mkl_threads": 8
+}
