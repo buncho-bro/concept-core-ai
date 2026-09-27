@@ -1,0 +1,36 @@
+{
+  "schema_version": "exp002-formal-baseline-identity-decision-v1",
+  "experiment": "exp002",
+  "decision_type": "formal_baseline_identity",
+  "human_approved": true,
+  "previous_baseline": {
+    "baseline_id": "exp002-baseline-001",
+    "baseline_version": "v1",
+    "reported_manifest_hash": "6ffc0acc3543c0b0561f7e078180b11b458f4732007c06048391f8b359d2582b",
+    "artifact_status": "NOT_PERSISTED",
+    "canonical_registrations": 0,
+    "formal_scientific_runs": 0
+  },
+  "recreate_previous_baseline": false,
+  "new_baseline": {
+    "baseline_id": "exp002-baseline-002",
+    "baseline_version": "v1"
+  },
+  "scientific_conditions_changed": false,
+  "selected_performance_changed": false,
+  "selected_performance": {
+    "torch_threads": 8,
+    "torch_interop_threads": 1,
+    "num_workers": 0,
+    "persistent_workers": false,
+    "omp_threads": 8,
+    "mkl_threads": 8
+  },
+  "verify_decision_changed": false,
+  "perf_benchmark_decision_changed": false,
+  "perf_selection_decision_changed": false,
+  "reason": "Previous runtime-only baseline did not persist between tasks before any canonical attempt was registered.",
+  "approval_source": "Explicit Human Decision supplied to this task",
+  "reported_evidence_scope": "Available evidence reports zero canonical registrations and zero formal scientific runs against lost baseline; missing artifact is not asserted reproducible.",
+  "integrity_hash": "503dea20eb9e984062683889867980f1658d6777ab3d037cf4b20b98fb48eb8a"
+}
