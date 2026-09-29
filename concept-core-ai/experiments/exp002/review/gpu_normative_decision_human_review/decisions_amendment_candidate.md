@@ -24,15 +24,17 @@ AMP, enabled mixed-precision autocast, GradScaler, FP16, BF16, TF32, quantizatio
 
 ## Execution and performance governance
 
-CPU and CUDA are complete candidate configurations, not isolated device labels. A CUDA/hybrid candidate must be designed independently; the old CPU optimum is not presumed optimal. Technical reliability and memory feasibility are eligibility gates. Eligible candidates are ranked only by median wall-clock time under the approved five-observation and conditional-plus-five procedure. Scientific outcomes are neither eligibility evidence nor ranking evidence.
+CPU and CUDA are complete candidate configurations, not isolated device labels. A CUDA/hybrid candidate must be designed independently; the old CPU optimum is not presumed optimal. Technical reliability and memory feasibility are eligibility gates. Eligible candidates are ranked only by median wall-clock time under the approved five-observation and conditional-plus-five procedure. Scientific outcomes are not eligibility, ranking, stopping, repetition-count, or selection evidence.
 
 Memory feasibility means successful approved non-formal workload completion without OOM, with peak allocated and peak reserved memory recorded. No arbitrary VRAM reserve percentage is introduced.
 
+OOM, process/device failure, backend/deterministic-policy failure, preflight/provenance failure, and other inability to execute the predefined candidate are technical reliability evidence. Preserve every failed measured repetition and its order. Do not silently delete, replace, rerun, or turn it into a successful timing, and do not create a result-dependent retry policy after measurement begins. A candidate failing the preregistered rule is `PERFORMANCE_INFEASIBLE`, receives no artificial timing, and is not ranked. This terminology is separate from formal-run and scientific statuses. If no eligible candidate remains, freeze no configuration or baseline-003 and return to Human/benchmark-design review without scientific outcomes.
+
 ## Original canonical formal set
 
-If CUDA is selected, the original five-run canonical set freezes and exact-matches the physical GPU UUID/model, NVIDIA driver, execution-relevant PyTorch/CUDA identity, and cuDNN identity, along with deterministic backend, TF32-disabled, process-start, precision, and complete performance policy. All five runs use the same physical GPU.
+If CUDA is selected, the original five-run canonical set freezes and exact-matches the GPU model, NVIDIA driver, execution-relevant PyTorch/CUDA identity, and cuDNN identity, along with deterministic backend, TF32-disabled, process-start, precision, and complete performance policy. All five runs use the same physical GPU. A stable/reliable GPU UUID exposed by the approved runtime is recorded, frozen, and exact-matched. When a reliable UUID is unavailable, that absence is explicit and the approved alternative same-device provenance/validation mechanism established during implementation review and VERIFY applies; this candidate does not invent it.
 
-Hardware failure or replacement cannot be hidden inside the set. A replacement requires Human authorization, a new baseline/version, and a complete new five-run canonical set. The first-registration-wins and non-replacing retry rules remain unchanged.
+Hardware failure or replacement cannot be hidden inside the set. A replacement physical GPU cannot enter the existing set even if it has the same model. Replacement requires Human authorization, a new baseline/version, and a complete new five-run canonical set. The first-registration-wins and non-replacing retry rules remain unchanged.
 
 ## Future independent reproduction
 
@@ -52,7 +54,9 @@ This sequence reconciles preventive device validation with the requirement that 
 
 ## Benchmark decision
 
-Each eligible candidate receives exactly five initial repetitions. Preserve all timings, order, min, max, and median. If relevant min-max intervals overlap, every relevant candidate receives exactly five additional repetitions and all ten observations are used. If overlap remains, record `PERFORMANCE_TIE_OR_UNCERTAIN` and retain CPU as lower-complexity incumbent without claiming speed superiority.
+Each predefined candidate is scheduled for exactly five initial measured repetitions. Preserve all attempts, failures, valid timings, order, min, max, and median. Failed repetitions are never replaced to manufacture a valid-observation count. The interval rule can proceed only for candidates that remain eligible and have five valid observations under the Human-confirmed reliability interaction.
+
+`HD-A-GPU-007-CLARIFICATION-01` proposes, but does not yet approve, the following deterministic meaning. Compare the five-valid-observation interval of the eligible lowest-median candidate with every other eligible interval. Any overlap makes `RELEVANT_CANDIDATES_FOR_EXPANSION = ALL ELIGIBLE CANDIDATES`; schedule exactly five additional repetitions for each and, when all complete validly under the confirmed reliability rule, recompute from all ten valid observations. Compare the lowest all-ten median candidate with every other all-ten interval. Persistent overlap records `PERFORMANCE_TIE_OR_UNCERTAIN` and retains CPU as incumbent without a speed/superiority claim. Human confirmation must also settle initial-stage, pre-expansion, and expansion-stage eligibility-failure edge cases before benchmarking.
 
 ## Governance lineage versus runtime-manifest lineage
 
@@ -63,4 +67,3 @@ The baseline-003 identity is not a CUDA selection. Its eventual manifest binds w
 ## Rationale
 
 CUDA can reduce execution time without changing the research question, but it expands nondeterminism, device identity, native-library, memory, and process-start risks. The exact-identity canonical policy makes the original formal set internally coherent; the separate reproduction policy avoids converting one GPU stack into a universal scientific requirement. The preflight/worker split prevents avoidable registrations while preserving immutable audit semantics after registration.
-

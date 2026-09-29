@@ -56,11 +56,15 @@ All model inputs, parameters, gradients, optimizer state, loss calculations, rec
 
 Performance benchmarking is non-formal and occurs only after the GPU-capable implementation has passed VERIFY and before baseline freeze or formal execution. Complete CPU and CUDA configurations MUST be predefined before their measurements begin.
 
-Technical/runtime reliability is an eligibility gate. An eligible CUDA candidate must pass the approved fresh preflight, deterministic/backend checks, and a successful approved representative/full non-formal workload without OOM. Record GPU memory peak allocated and peak reserved; no fixed VRAM-percentage threshold applies. A failure of eligibility is not assigned an artificial timing and is not ranked.
+Technical/runtime reliability is an eligibility gate. An eligible CUDA candidate must pass the approved fresh preflight, deterministic/backend checks, required provenance checks, and a successful approved representative/full non-formal workload without OOM. Technical failure includes OOM; process or device failure; backend- or deterministic-policy failure; preflight or required-provenance failure; and other technical inability to execute the predefined candidate. Record GPU memory peak allocated and peak reserved; no fixed VRAM-percentage threshold applies.
 
-Every eligible candidate receives exactly five initial measured repetitions. Preserve candidate configuration, execution order, every wall-clock observation, minimum, maximum, and median. Median wall-clock seconds is the sole primary ranking statistic. Scientific metrics MUST NOT be consulted or used.
+Preserve every attempted measured repetition, execution order, observed timing when valid, and technical failure evidence. A failed measured repetition MUST NOT be silently discarded, replaced, rerun, or converted into a successful timing to obtain five or ten successful measurements. No result-dependent retry policy may be introduced after measurement begins. A candidate that fails its preregistered reliability rule is `PERFORMANCE_INFEASIBLE`; it receives no artificial timing and does not enter wall-clock ranking. This benchmark-specific status is separate from formal-run `VALID`, `INVALID`, and `EXPERIMENTAL_FAILURE` and from experiment-level classification.
 
-If the observed min-max intervals of candidates relevant to selection overlap after five observations, run exactly five additional observations for every relevant candidate and recompute all summaries from all ten. If relevant intervals still overlap, record `PERFORMANCE_TIE_OR_UNCERTAIN` and retain CPU as the lower-complexity incumbent. This is not a claim that CPU is faster or statistically superior.
+Every predefined candidate is scheduled for exactly five initial measured repetitions. A valid timing observation exists only for a successfully completed measured repetition; failed attempts count in the immutable attempt record and are not replaced. For candidates that remain eligible and have five valid timing observations under the confirmed reliability rule, preserve candidate configuration, execution order, every observation, minimum, maximum, and median. Median wall-clock seconds is the sole primary ranking statistic. Scientific metrics MUST NOT be eligibility, ranking, stopping, repetition-count, or selection evidence.
+
+The following deterministic expansion rule is proposed by `HD-A-GPU-007-CLARIFICATION-01` and remains `HUMAN_CONFIRMATION_REQUIRED`: identify the eligible candidate with the lowest five-valid-observation median and compare its `[minimum, maximum]` interval against every other eligible candidate with five valid observations. If none overlaps, do not expand. If at least one overlaps, `RELEVANT_CANDIDATES_FOR_EXPANSION = ALL ELIGIBLE CANDIDATES`; every eligible candidate is scheduled for exactly five additional measured repetitions. When all additional attempts complete validly under the confirmed reliability rule, minimum, maximum, and median are recomputed from all ten valid observations. Compare the lowest all-ten median candidate's interval against every other eligible candidate's all-ten interval. If no overlap remains, select by median. If any overlap remains, record `PERFORMANCE_TIE_OR_UNCERTAIN` and retain CPU as the lower-complexity incumbent without claiming CPU speed or statistical superiority.
+
+Expansion applies only to candidates still eligible under the reliability rule, and failed repetitions are never replaced to manufacture five or ten valid observations. Before benchmark approval, Human confirmation MUST settle the preregistered handling when a candidate fails during the initial stage, becomes ineligible before expansion, or fails during expansion. No performance configuration or baseline-003 may be frozen if no eligible candidate remains; return to Human/benchmark-design review without consulting scientific outcomes.
 
 The selected complete configuration is frozen before formal execution and is identical across the five canonical runs.
 
@@ -73,7 +77,9 @@ All five original canonical runs use the same git commit, scientific implementat
 For a CUDA-selected original canonical set, the baseline additionally freezes and all five runs exact-match:
 
 ```text
-physical GPU UUID and model
+physical GPU model
+stable/reliable physical GPU UUID when exposed by the approved runtime
+explicit UUID-unavailable record and approved alternative same-device evidence otherwise
 NVIDIA driver identity
 execution-relevant PyTorch version/build identity
 torch.version.cuda and the CUDA runtime/interface used by PyTorch
@@ -85,7 +91,7 @@ required CUDA process-start policy
 
 An installed but unused system CUDA toolkit is recorded as provenance-only and does not replace the execution-relevant CUDA identity.
 
-All five original canonical runs execute on the same physical GPU. A GPU failure or replacement cannot silently complete the set. Replacement requires Human authorization, a new baseline/version, and a new five-run canonical set. No run from a replacement device becomes a member of the original set.
+All five original canonical runs execute on the same physical GPU and exact-match the frozen GPU model. When a stable/reliable GPU UUID is exposed by the approved runtime, the baseline records and freezes it and all five runs exact-match it. UUID absence or unreliable exposure does not alone prohibit CUDA; that fact is recorded explicitly and the implementation uses an alternative same-physical-device provenance/validation mechanism established during implementation review and VERIFY. This amendment does not invent that mechanism. A GPU failure or physical replacement cannot silently complete the set, even with the same model. Replacement requires Human authorization, a new baseline/version, and a new five-run canonical set. No run from a replacement device becomes a member of the original set.
 
 A future independent reproduction may use a different CUDA GPU only under the then-approved equivalence, preflight, policy, and complete provenance requirements. It is labeled as a distinct reproduction set and is never substituted into the original canonical set. Cross-hardware bitwise equality remains unnecessary; within-set frozen-identity rules remain mandatory.
 
@@ -101,7 +107,7 @@ The required CUDA process-start environment is established before importing CUDA
 
 Existing seed purposes are unchanged. Explicit CUDA RNG initialization, if required, uses the existing `model_seed`; no new CUDA-specific seed purpose is introduced. No new normative model-construction global-RNG save/restore procedure is required under the current architecture.
 
-Before registration of a CUDA formal attempt, the launcher runs a dedicated seed-free, non-scientific preflight in a fresh subprocess. The preflight validates at least device availability, expected UUID/model, driver, PyTorch/CUDA/cuDNN identity, FP32/TF32 and deterministic backend policy, required process-start policy, and a minimal allocation/operation/synchronization path. It performs no dataset generation, model initialization using a formal seed, training, evaluation, or scientific metric calculation.
+Before registration of a CUDA formal attempt, the launcher runs a dedicated seed-free, non-scientific preflight in a fresh subprocess. The preflight validates at least device availability, expected model, stable/reliable UUID when available or the approved alternative same-device evidence when not, driver, PyTorch/CUDA/cuDNN identity, FP32/TF32 and deterministic backend policy, required process-start policy, and a minimal allocation/operation/synchronization path. It performs no dataset generation, model initialization using a formal seed, training, evaluation, or scientific metric calculation.
 
 A failed preflight creates no registration. After a successful preflight, the launcher registers the attempt exactly once and launches a separate fresh formal worker. The worker revalidates the frozen identity and policies before scientific execution. Failure after registration is the immutable technical status `INVALID` for that registered attempt.
 
@@ -135,4 +141,3 @@ Preflight failure leaves the seed slot unregistered. Any launch or revalidation 
 ## 7. Status of all other sections
 
 Sections 0–43, 48–50, 51, and 52 retain their existing scientific and interpretive meaning except for the cross-references introduced above. No scientific equation, threshold, sample, seed, or aggregation rule is amended.
-

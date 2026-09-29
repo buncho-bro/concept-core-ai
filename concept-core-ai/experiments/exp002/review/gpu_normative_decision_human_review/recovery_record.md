@@ -24,3 +24,6 @@ The new candidate is derived from current authoritative `spec.md`, current autho
 
 The loss of the prior candidate does not alter authoritative repository content. Scientific conditions remain unchanged. This task performs documentation/normative review only: no implementation change, benchmark, performance selection, baseline freeze, formal registration, or formal scientific execution occurred.
 
+## Independent-review fix provenance
+
+The candidate was persisted at commit `c30b6252d512e27748749bda1f8ca315fdcd47c6` and then independently reviewed as `NOT_READY_FOR_NORMATIVE_PROMOTION`. The subsequent in-place review-candidate fix addresses only `RF-GPU-001`, `RF-GPU-002`, and `RF-GPU-003`. It does not alter the recovery classification, reconstruct the lost candidate, or claim historical identity. See `independent_review_fix.md`.

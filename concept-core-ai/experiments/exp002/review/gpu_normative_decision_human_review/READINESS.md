@@ -2,18 +2,24 @@
 
 > **NEW HUMAN-REVIEWED CANDIDATE CREATED AFTER NON-PERSISTENCE OF THE PREVIOUS UNTRACKED CANDIDATE**
 
-## Checklist
+## Independent-review fix checklist
 
 | Requirement | Result |
 |---|---|
-| Human Decisions represented | 15 / 15 |
-| Human ambiguities resolved | 15 / 15 |
-| Contradiction among approved decisions | none found |
-| Conflicts with coherent treatment | 8 / 8 |
-| Remaining blocking conflict | 0 |
+| Approved Human Decisions represented | 15 / 15 |
+| RF-GPU-001 UUID availability qualifier | RESOLVED |
+| RF-GPU-002 failed-observation/reliability governance | RESOLVED |
+| RF-GPU-003 deterministic expansion set | HUMAN_CONFIRMATION_REQUIRED |
+| Human ambiguities resolved | 14 / 15 |
+| Conflicts fully resolved | 7 / 8 |
 | Scientific conditions unchanged | yes |
 | CUDA limited to execution/performance scope | yes |
-| Unapproved concrete CUDA process-start value invented | no |
+| Failed benchmark repetitions immutable/auditable | yes |
+| Result-dependent replacement/retry permitted | no |
+| Scientific metrics affect eligibility/count/selection | no |
+| Reliable UUID absence alone prohibits CUDA | no |
+| Same physical GPU remains required | yes |
+| Unapproved alternative same-device mechanism invented | no |
 | Historical candidate loss represented truthfully | yes |
 | baseline-003 governance/runtime lineage represented truthfully | yes |
 | Authoritative `spec.md` modified | no |
@@ -25,13 +31,15 @@
 | Performance benchmark/selection performed | no |
 | Runtime baseline frozen | no |
 
-## Review conclusion
+## Human clarification gate
 
-The Human-approved decisions form a coherent execution/performance policy. The deliberately deferred `CUBLAS_WORKSPACE_CONFIG` value is bounded by a precise design, target-validation, freeze, and VERIFY procedure and is therefore not an unresolved Human normative ambiguity. Current implementation gaps are explicitly separated from normative readiness and must be closed and verified after promotion but before any CUDA benchmark.
+`HD-A-GPU-007-CLARIFICATION-01` proposes that any overlap between the initial lowest-median eligible candidate's five-valid-observation interval and another eligible candidate makes `RELEVANT_CANDIDATES_FOR_EXPANSION = ALL ELIGIBLE CANDIDATES`. All eligible candidates would be scheduled for exactly five additional repetitions and, where those attempts complete validly under the confirmed reliability rule, be compared on all ten valid observations. The proposal also requires a preregistered, Human-confirmed treatment of candidates that fail during the initial stage, become ineligible before expansion, or fail during expansion. Failed repetitions may never be replaced to manufacture valid-observation counts.
 
-The missing prior candidate was non-authoritative and untracked. This recovery candidate neither fabricates it nor depends on unavailable exact text. No scientific condition is changed and no performance device is selected.
+This clarification is new and has not been Human-approved. It is the sole identified remaining Human normative confirmation. The candidate cannot be promoted, implemented, or benchmarked until confirmation and re-review.
 
-The newly created candidate is ready for Human review before authoritative normative promotion.
+```text
+HUMAN_CONFIRMATION_REQUIRED:
+HD-A-GPU-007-CLARIFICATION-01
+```
 
-READY_FOR_NORMATIVE_PROMOTION
-
+NOT_READY_FOR_NORMATIVE_PROMOTION

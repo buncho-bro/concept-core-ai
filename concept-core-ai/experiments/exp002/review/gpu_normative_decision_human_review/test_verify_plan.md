@@ -21,9 +21,9 @@ This plan applies after normative promotion and implementation. Running these te
 ## C. Process-start and provenance
 
 1. Validate the reviewed `CUBLAS_WORKSPACE_CONFIG` value is in the environment before PyTorch/CUDA/native scientific imports. Test missing, wrong, and late values.
-2. Validate fresh-process capture of GPU UUID/model, NVIDIA driver, PyTorch build/version, `torch.version.cuda`, actual runtime/interface, cuDNN, device capability, precision, TF32, and deterministic settings.
+2. Validate fresh-process capture of GPU model; stable/reliable UUID availability and value when exposed; explicit UUID-unavailable/unreliable state plus the approved alternative same-device evidence otherwise; NVIDIA driver; PyTorch build/version; `torch.version.cuda`; actual runtime/interface; cuDNN; device capability; precision; TF32; and deterministic settings.
 3. Distinguish an unused system CUDA toolkit as provenance-only; changing it alone must not masquerade as a change to the runtime used by PyTorch.
-4. Reject GPU UUID/model, driver, PyTorch/CUDA, cuDNN, backend, precision, and process-start mismatches against a frozen original-set manifest.
+4. Reject GPU model, reliable UUID when frozen, approved alternative same-device evidence, driver, PyTorch/CUDA, cuDNN, backend, precision, and process-start mismatches against a frozen original-set manifest. Test that reliable UUID absence alone does not make CUDA impossible and that same-model physical replacement is rejected.
 
 ## D. Seed-free fresh preflight and sequencing
 
@@ -51,12 +51,15 @@ This plan applies after normative promotion and implementation. Running these te
 ## G. Benchmark and selection governance
 
 1. Validate that each complete eligible candidate is immutable before measurement and that distinct OMP/MKL/CUDA process-start configurations use fresh processes.
-2. Require exactly five initial measured repetitions, preserving execution order and all wall-clock seconds; independently recompute min, max, and median.
-3. Test non-overlapping ranges: no extra repetitions.
-4. Test overlapping relevant ranges: exactly five additional repetitions for every relevant candidate; reject partial expansion and recompute from all ten.
-5. Test persistent overlap: record `PERFORMANCE_TIE_OR_UNCERTAIN`, retain CPU incumbent, and prohibit CPU-superiority wording.
-6. Verify technical reliability is an eligibility gate and ineligible candidates are disclosed but not assigned fake timings.
-7. Prove selection input/ranking uses wall-clock data only. Training/validation loss, reconstruction, probe, distance, bootstrap, and other scientific metrics must be absent from the selector input or ignored and rejected by audit validation.
+2. Preserve every attempted repetition, execution order, valid wall-clock observation, and technical failure record. Reject silent deletion, replacement, rerun, conversion to a valid timing, or a retry policy introduced after measurements begin.
+3. Test OOM, process/device, backend/deterministic-policy, preflight/provenance, and other technical execution failures. Assert `PERFORMANCE_INFEASIBLE` remains distinct from formal-run and scientific statuses; assert no artificial timing/rank.
+4. After Human confirmation, require exactly five scheduled initial attempts per candidate, no replacement, and five valid observations only for candidates whose five attempts all complete validly under the confirmed rule; independently recompute min, max, and median.
+5. Test non-overlapping intervals for the initial lowest-median eligible candidate: no expansion.
+6. Test any overlap with that candidate: `RELEVANT_CANDIDATES_FOR_EXPANSION = ALL ELIGIBLE CANDIDATES`, exactly five scheduled additional attempts for each, no partial expansion, no replacement, and all-ten recomputation only where the confirmed rule yields ten valid observations.
+7. Test persistent all-ten overlap: record `PERFORMANCE_TIE_OR_UNCERTAIN`, retain CPU incumbent, and prohibit CPU-superiority wording.
+8. Test no eligible candidate remains: no performance freeze and no baseline-003 freeze; return to Human/benchmark-design review without scientific outcomes.
+9. Before implementation acceptance, test the Human-confirmed rules for a candidate failing during the initial stage, becoming ineligible before expansion, and failing during expansion. Until confirmation, the benchmark tool must refuse to proceed rather than invent behavior.
+10. Prove selection input/ranking uses wall-clock and preregistered reliability evidence only. Training/validation loss, reconstruction, probe, distance, bootstrap, and other scientific metrics must not affect eligibility, stopping, repetition count, or selection.
 
 ## H. Baseline-003 and lineage
 
@@ -77,7 +80,7 @@ A successful GPU-capable VERIFY must record:
 
 - authoritative normative commit and implementation fingerprint;
 - pinned Python/PyTorch/CUDA/cuDNN and driver observations;
-- target GPU UUID/model;
+- target GPU model and reliable UUID when exposed, or explicit UUID-unavailable state plus approved alternative same-device evidence;
 - reviewed CUDA process-start value and proof it preceded native imports;
 - FP32/TF32/deterministic state;
 - preflight freshness and seed-free evidence;
@@ -88,3 +91,4 @@ A successful GPU-capable VERIFY must record:
 
 VERIFY does not select CPU/CUDA, run the performance benchmark, freeze baseline-003, or execute formal seeds.
 
+This plan cannot be approved for benchmark execution until `HD-A-GPU-007-CLARIFICATION-01`, including its reliability-failure edge cases, receives Human confirmation.

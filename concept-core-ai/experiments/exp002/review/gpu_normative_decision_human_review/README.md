@@ -6,6 +6,8 @@
 
 This directory is a new, non-authoritative normative review candidate. It was created after the previous untracked `gpu_normative_decision/` review candidate was not persisted. It is not a reconstruction of that missing directory and is not claimed to reproduce any unavailable file exactly.
 
+An independent review of the persisted candidate returned `NOT_READY_FOR_NORMATIVE_PROMOTION` with findings `RF-GPU-001` through `RF-GPU-003`. This revision resolves the two findings determined by existing Human Decisions and records `HD-A-GPU-007-CLARIFICATION-01` as `HUMAN_CONFIRMATION_REQUIRED`. It remains non-authoritative and not ready for promotion until that confirmation is supplied and re-reviewed.
+
 The candidate is derived from the current authoritative `spec.md` and `decisions.md`, current implementation/governance source, retained prior-review facts supplied by the Human, and approved Human Decisions `HD-A-GPU-001` through `HD-A-GPU-015`. The retained prior-review files were not present in the repository during this task and are not represented as repository artifacts here.
 
 ## Boundary
@@ -28,6 +30,7 @@ The candidate does not promote or edit `spec.md` or `decisions.md`; implement CU
 - `implementation_impact.md` — inspected future implementation/governance/test impact only.
 - `test_verify_plan.md` — future implementation verification and benchmark-evidence plan.
 - `READINESS.md` — promotion readiness conclusion.
+- `independent_review_fix.md` — independent-review findings, changed-file scope, and disposition.
 
 ## Current repository facts
 
@@ -38,4 +41,5 @@ The candidate does not promote or edit `spec.md` or `decisions.md`; implement CU
 - Performance benchmark executed by this task: no.
 - CPU/CUDA selected by this task: no.
 - Runtime baseline frozen by this task: no.
-
+- Current readiness: `NOT_READY_FOR_NORMATIVE_PROMOTION`.
+- Human confirmation required: `HD-A-GPU-007-CLARIFICATION-01`.
