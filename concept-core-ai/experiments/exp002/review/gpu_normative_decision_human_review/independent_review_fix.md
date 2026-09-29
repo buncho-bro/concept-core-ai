@@ -48,11 +48,11 @@ Files changed for RF-GPU-002:
 
 ## RF-GPU-003 — deterministic “relevant candidates” definition
 
-**Disposition: HUMAN_CONFIRMATION_REQUIRED**
+**Disposition: RESOLVED**
 
 New clarification candidate `HD-A-GPU-007-CLARIFICATION-01` proposes: after exactly five scheduled initial attempts and five valid observations for every candidate remaining eligible under the confirmed rule, compare the initial lowest-median candidate's interval with all others; any overlap makes `RELEVANT_CANDIDATES_FOR_EXPANSION = ALL ELIGIBLE CANDIDATES`; schedule exactly five more repetitions for every eligible candidate; where all complete validly under the confirmed reliability rule, recompute from all ten valid observations; compare the all-ten lowest-median interval with all others; persistent overlap records `PERFORMANCE_TIE_OR_UNCERTAIN` and retains CPU without a superiority claim.
 
-Human confirmation must also settle preregistered handling for failure during the initial stage, ineligibility before expansion, and failure during expansion. The fix does not infer those rules from outcomes or scientific metrics.
+The Human approval now fixes initial and expansion failure handling, zero/sole eligibility, all-eligible expansion, and eligible-CPU-only uncertainty tie-break. No outcome or scientific metric supplies any decision.
 
 Files changed for RF-GPU-003:
 
@@ -87,7 +87,5 @@ Files changed for RF-GPU-003:
 ## Post-fix readiness
 
 ```text
-NOT_READY_FOR_NORMATIVE_PROMOTION
-HUMAN_CONFIRMATION_REQUIRED:
-HD-A-GPU-007-CLARIFICATION-01
+READY_FOR_NORMATIVE_PROMOTION
 ```

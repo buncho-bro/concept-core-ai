@@ -2,7 +2,7 @@
 
 > **NEW HUMAN-REVIEWED CANDIDATE CREATED AFTER NON-PERSISTENCE OF THE PREVIOUS UNTRACKED CANDIDATE**
 
-Decisions `HD-A-GPU-001` through `HD-A-GPU-015` are approved Human input for this recovery candidate. The separately labeled `HD-A-GPU-007-CLARIFICATION-01` is a new proposal with `HUMAN_CONFIRMATION_REQUIRED`. None of these entries by itself promotes the candidate into authoritative `spec.md` or `decisions.md`.
+Decisions `HD-A-GPU-001` through `HD-A-GPU-015` are approved Human input for this recovery candidate. `HD-A-GPU-007-CLARIFICATION-01` transitioned from proposed to Human-approved in the final approval record. None of these entries by itself promotes the candidate into authoritative `spec.md` or `decisions.md`.
 
 ## HD-A-GPU-001 — NVIDIA driver identity
 
@@ -68,15 +68,19 @@ Technical/runtime reliability is an eligibility gate. Rank eligible candidates u
 
 Technical failures include OOM, process or device failure, backend/deterministic-policy failure, preflight or required-provenance failure, and other technical inability to execute the predefined candidate. Preserve every failed measured repetition, its order, and its failure evidence. A failed measured repetition is not silently deleted, replaced, rerun, or converted into a successful timing to manufacture the requested number of successful observations. No result-dependent retry policy may be introduced after measurements begin. A candidate failing the preregistered reliability rule is `PERFORMANCE_INFEASIBLE` and receives no artificial timing or wall-clock rank. If no eligible candidate remains, freeze neither a performance configuration nor baseline-003; return to Human/benchmark-design review without consulting scientific outcomes. Benchmark eligibility terminology remains separate from formal-run `VALID`, `INVALID`, and `EXPERIMENTAL_FAILURE` and from experiment-level classification.
 
-## HD-A-GPU-007-CLARIFICATION-01 — proposed deterministic expansion set
+## HD-A-GPU-007-CLARIFICATION-01 — approved deterministic expansion and technical-failure procedure
 
 ```text
-STATUS: HUMAN_CONFIRMATION_REQUIRED
+STATUS: HUMAN_APPROVED
 ```
 
-This is a new Human clarification candidate, not a previously approved decision.
+This Human-approved clarification completes HD-A-GPU-007 without changing any scientific condition.
 
-After exactly five scheduled initial measured repetitions per candidate, and only when every candidate still eligible under the preregistered reliability rule has five valid timing observations without replacement:
+Every predefined candidate is scheduled for exactly five initial measured repetitions. A technical failure immediately classifies that candidate `PERFORMANCE_INFEASIBLE`; do not execute its remaining scheduled repetitions. Preserve completed attempts, valid timings, failed attempt, execution order, and technical-failure evidence; do not replace or rerun it. Exclude it from timing comparisons while continuing other eligible candidates.
+
+Only eligible candidates with exactly five successful initial observations enter comparison. Zero eligible candidates means no selection, performance freeze, or baseline-003 freeze and return to Human review. One is `SOLE_ELIGIBLE_CANDIDATE`, may be selected on eligibility, is not a timing winner, and requires no expansion.
+
+For two or more eligible candidates:
 
 1. identify the eligible candidate with the numerically lowest five-observation median;
 2. compare its five-observation `[minimum, maximum]` interval with every other eligible candidate's interval;
@@ -88,7 +92,7 @@ After exactly five scheduled initial measured repetitions per candidate, and onl
 8. if no overlap remains, select by the approved median rule;
 9. if any overlap remains, record `PERFORMANCE_TIE_OR_UNCERTAIN` and retain CPU as the lower-complexity incumbent without claiming CPU speed or statistical superiority.
 
-Expansion applies only to candidates remaining eligible under the reliability rule. Failed repetitions are never replaced to manufacture five or ten valid observations. The precise preregistered handling of a candidate that fails during the initial stage, becomes ineligible before expansion, or fails during expansion is not uniquely fixed by the existing approved decisions. Human confirmation of this clarification must also settle those edge cases before benchmark design can be approved; scientific metrics cannot settle them.
+During expansion, membership is fixed as all candidates eligible at expansion start. A technical failure immediately makes its candidate `PERFORMANCE_INFEASIBLE`; preserve the original five, completed additional observations, failed attempt, evidence and order; do not rerun, replace, restart, or retroactively alter membership. Continue other expansion candidates. Every still-eligible expanded candidate has exactly ten valid observations. If none remain, return to Human review without selection/freeze; if one remains it is `SOLE_ELIGIBLE_CANDIDATE` without a superiority claim. With two or more, compare the lowest ten-observation median interval against all others. No overlap selects by median; any overlap records `PERFORMANCE_TIE_OR_UNCERTAIN` and retains the eligible CPU incumbent only as lower-complexity tie-break. If CPU is ineligible, return to Human review without freeze. Scientific metrics are prohibited throughout eligibility, expansion, ranking, stopping, tie-break, and selection.
 
 ## Cross-cutting boundary
 

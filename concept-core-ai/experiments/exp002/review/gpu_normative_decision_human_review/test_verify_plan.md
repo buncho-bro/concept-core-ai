@@ -92,3 +92,6 @@ A successful GPU-capable VERIFY must record:
 VERIFY does not select CPU/CUDA, run the performance benchmark, freeze baseline-003, or execute formal seeds.
 
 This plan cannot be approved for benchmark execution until `HD-A-GPU-007-CLARIFICATION-01`, including its reliability-failure edge cases, receives Human confirmation.
+# Approved clarification coverage
+
+Future tests must cover initial and expansion failure, immutable evidence/order, all-eligible expansion, exact five/ten valid observation rules, zero/sole eligibility, eligible-CPU tie-break, ineligible-CPU return-to-review, and exclusion of scientific metrics.

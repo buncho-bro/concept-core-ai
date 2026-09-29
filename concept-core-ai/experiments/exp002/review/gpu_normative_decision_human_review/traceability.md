@@ -41,3 +41,6 @@ Abbreviations: `S44–47` = current spec performance sections; `S50A` = formal b
 ## Coverage conclusion
 
 All 15 approved Human Decisions and all eight conflict IDs appear in the proposed normative text, implementation impact, and future verification plan. No approved decision disappears. `HD-A-GPU-007-CLARIFICATION-01` is explicitly new and unapproved; it is the sole remaining Human normative confirmation required before promotion.
+# Final approval transition
+
+All 15 original decisions plus approved `HD-A-GPU-007-CLARIFICATION-01` map to candidate wording, implementation impact, and future VERIFY evidence. The clarification closes the former deterministic-expansion gap.

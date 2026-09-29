@@ -2,7 +2,7 @@
 
 > **NEW HUMAN-REVIEWED CANDIDATE CREATED AFTER NON-PERSISTENCE OF THE PREVIOUS UNTRACKED CANDIDATE**
 
-Fourteen of the 15 previously identified Human normative ambiguities are resolved by the approved decision package. A-GPU-007 remains open only for the new deterministic expansion-set clarification and its reliability-failure edge cases. Implementation details required to realize otherwise resolved policy are tracked separately and do not reopen those Human questions.
+All 15 previously identified Human normative ambiguities are resolved by the approved decision package. A-GPU-007 was resolved by Human approval of `HD-A-GPU-007-CLARIFICATION-01`; implementation work remains separate.
 
 | Ambiguity | Human decision | Disposition | Resolution |
 |---|---|---|---|
@@ -12,7 +12,7 @@ Fourteen of the 15 previously identified Human normative ambiguities are resolve
 | A-GPU-004 | HD-A-GPU-004 | RESOLVED_BY_HUMAN_DECISION | Same physical GPU and frozen model for all original canonical runs. Exact-match stable/reliable UUID when available; otherwise explicitly record absence and use an alternative mechanism approved at implementation review/VERIFY. Replacement creates a new baseline and five-run set. |
 | A-GPU-005 | HD-A-GPU-005 | RESOLVED_BY_HUMAN_DECISION | Different hardware is allowed only for a distinct independent reproduction satisfying equivalence/preflight/provenance. |
 | A-GPU-006 | HD-A-GPU-006 | RESOLVED_BY_HUMAN_DECISION | Exactly five initial observations; median primary; retain observations, min, max, median. |
-| A-GPU-007 | HD-A-GPU-007; proposed HD-A-GPU-007-CLARIFICATION-01 | HUMAN_CONFIRMATION_REQUIRED | Approved +5/uncertainty principles remain. Proposed deterministic rule expands all eligible candidates when the initial lowest-median interval overlaps any other; Human confirmation must also settle eligibility-failure edge cases. |
+| A-GPU-007 | HD-A-GPU-007; HD-A-GPU-007-CLARIFICATION-01 | RESOLVED_BY_HUMAN_DECISION | Approved deterministic rule covers initial and expansion failure, all-eligible expansion, zero/sole eligibility, and CPU tie-break. |
 | A-GPU-008 | HD-A-GPU-008 | RESOLVED_BY_HUMAN_DECISION | Benchmark predefined complete CPU/CUDA configurations; do not transplant the CPU optimum by assumption. |
 | A-GPU-009 | HD-A-GPU-009 | RESOLVED_BY_HUMAN_DECISION | Successful approved workload without OOM plus allocated/reserved telemetry; no fixed percentage. |
 | A-GPU-010 | HD-A-GPU-010 | RESOLVED_BY_HUMAN_DECISION | Normative procedure is fixed; concrete `CUBLAS_WORKSPACE_CONFIG` is deliberately delegated to version-specific design, validation, freeze, and VERIFY. |
@@ -26,7 +26,7 @@ Fourteen of the 15 previously identified Human normative ambiguities are resolve
 
 ```text
 AMBIGUITIES_RESOLVED: 14 / 15
-HUMAN_CONFIRMATION_REQUIRED: HD-A-GPU-007-CLARIFICATION-01
+No Human normative ambiguity remains.
 REMAINING_HUMAN_NORMATIVE_AMBIGUITIES: 1
 ```
 

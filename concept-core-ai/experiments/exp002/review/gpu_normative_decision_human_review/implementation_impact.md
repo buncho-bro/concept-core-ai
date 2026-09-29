@@ -49,4 +49,4 @@ Any future proposal to change batch size, precision, architecture, optimizer, ep
 
 ## Implementation gate
 
-Normative promotion is currently blocked by `HD-A-GPU-007-CLARIFICATION-01`. After Human confirmation, promotion would authorize implementation work but would not certify it. Before any CUDA benchmark: implement; approve the alternative same-device mechanism for UUID-unavailable environments; review the concrete CUDA process-start value for the pinned stack and target hardware; run the full future test/VERIFY plan; and produce target-environment preflight evidence. No current CUDA support claim is made.
+Human approval removed the former candidate-level clarification gate. Separate authoritative promotion is still required and would authorize implementation work, not certify it. Before any CUDA benchmark: implement; approve the alternative same-device mechanism for UUID-unavailable environments; review the concrete CUDA process-start value for the pinned stack and target hardware; run the full future test/VERIFY plan; and produce target-environment preflight evidence. No current CUDA support claim is made.
